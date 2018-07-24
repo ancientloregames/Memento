@@ -22,7 +22,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintBottom_toTopOf="@+id/alarm_list"
+			app:layout_constraintBottom_toTopOf="@+id/alarmListView"
 			android:layout_marginTop="8dp"
 			android:layout_marginLeft="8dp"
 			android:layout_marginStart="8dp"
@@ -31,7 +31,7 @@
 			/>
 
 		<android.support.v7.widget.RecyclerView
-			android:id="@+id/alarm_list"
+			android:id="@+id/alarmListView"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
 			tools:layout_editor_absoluteY="17dp"
