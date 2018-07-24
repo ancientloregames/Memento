@@ -18,10 +18,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 	private val db by lazy { AlarmsDatabase.getInstance(this) }
 
+	private lateinit var listAdapter: AlarmsListAdapter
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		dbExec.submit { alarmListView.adapter = AlarmsListAdapter(this, db.alarmDao().getAll().toMutableList()) }
+		dbExec.submit {
+			listAdapter = AlarmsListAdapter(this, db.alarmDao().getAll().toMutableList())
+			alarmListView.adapter = listAdapter
+		}
 
 		viewModel.onAddAlarmEvent()
 				.takeUntil(destroyEvent)
@@ -34,7 +39,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		if (resultCode != Activity.RESULT_OK) return
 
 		when (requestCode) {
-			INTNENT_ADD_ALARM -> {}
+			INTNENT_ADD_ALARM ->
+				data?.let { it.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)
+							?.let { addAlarm(it) } }
 		}
 	}
 
@@ -45,6 +52,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	override fun createViewModel() = MainActivityViewModel()
 
 	override fun getTitleId() = R.string.app_name
+
+	private fun addAlarm(alarm: Alarm) {
+		addAlarmToDb(alarm)
+		listAdapter.addItem(alarm)
+	}
+
+	private fun addAlarmToDb(alarm: Alarm) {
+		dbExec.submit { db.alarmDao().insert(alarm) }
+	}
 
 	private fun addAlarmIntent() {
 		val intent = Intent(this, AlarmActivity::class.java)
