@@ -15,12 +15,12 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 	constructor(parcel: Parcel) : this(
 			parcel.readLong(),
 			parcel.readString(),
-			parcel.readSerializable() as Date)
+			Date(parcel.readLong()))
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeLong(id)
 		parcel.writeString(title)
-		parcel.writeSerializable(date)
+		parcel.writeLong(date.time)
 	}
 
 	override fun describeContents() = 0
