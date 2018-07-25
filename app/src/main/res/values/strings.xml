@@ -2,4 +2,6 @@
 	<string name="app_name">Memento</string>
 	
 	<string name="new_alarm">New Alarm</string>
+	
+	<string name="title">Title</string>
 </resources>
