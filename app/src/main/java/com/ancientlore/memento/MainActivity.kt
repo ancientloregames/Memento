@@ -1,13 +1,23 @@
 package com.ancientlore.memento
 
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import com.ancientlore.memento.AlarmActivity.Companion.EXTRA_ALARM
 import com.ancientlore.memento.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+/* TODO alarmActivity with result
+*  addition to AlarmManager
+*  bottomBar implementation
+*
+* */
 class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() {
 
 	companion object {
@@ -17,6 +27,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	private val dbExec: ExecutorService = Executors.newSingleThreadExecutor { r -> Thread(r, "db_worker") }
 
 	private val db by lazy { AlarmsDatabase.getInstance(this) }
+
+	private val alarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
 
 	private lateinit var listAdapter: AlarmsListAdapter
 
@@ -55,11 +67,25 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 	private fun addAlarm(alarm: Alarm) {
 		addAlarmToDb(alarm)
+		scheduleAlarm(alarm)
 		listAdapter.addItem(alarm)
 	}
 
 	private fun addAlarmToDb(alarm: Alarm) {
 		dbExec.submit { db.alarmDao().insert(alarm) }
+	}
+
+	private fun scheduleAlarm(alarm: Alarm) {
+		val intent = Intent(this, AlarmReceiver::class.java)
+		intent.putExtra(EXTRA_ALARM, alarm)
+
+		val pendingIntent =
+				PendingIntent.getBroadcast(this, alarm.id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+			alarmManager.set(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
+		else
+			alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
 	}
 
 	private fun addAlarmIntent() {
