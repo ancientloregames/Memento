@@ -14,7 +14,6 @@ class AlarmActivityViewModel: ViewModel() {
 
 	val hours = ObservableInt(0)
 	val minutes = ObservableInt(0)
-	val seconds = ObservableInt(1)
 
 	private val submitAlarmEvent = PublishSubject.create<Alarm>()
 
@@ -28,7 +27,7 @@ class AlarmActivityViewModel: ViewModel() {
 		val presentTime = Calendar.getInstance()
 		val calendar = GregorianCalendar()
 		calendar.set(presentTime.get(Calendar.YEAR), presentTime.get(Calendar.MONTH), presentTime.get(Calendar.DATE),
-				hours.get(), minutes.get(), seconds.get())
+				hours.get(), minutes.get(), 0)
 		return calendar.time
 	}
 }
