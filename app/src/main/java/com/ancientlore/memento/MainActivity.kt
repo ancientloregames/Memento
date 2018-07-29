@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import com.ancientlore.memento.AlarmActivity.Companion.EXTRA_ALARM
 import com.ancientlore.memento.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,6 +35,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+
+		alarmListView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
 		dbExec.submit {
 			listAdapter = AlarmsListAdapter(this, db.alarmDao().getAll().toMutableList())
