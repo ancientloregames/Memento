@@ -24,10 +24,9 @@ class AlarmActivityViewModel: ViewModel() {
 	private fun createAlarm() = Alarm(0, title.get()!!, getDate())
 
 	private fun getDate(): Date {
-		val presentTime = Calendar.getInstance()
-		val calendar = GregorianCalendar()
-		calendar.set(presentTime.get(Calendar.YEAR), presentTime.get(Calendar.MONTH), presentTime.get(Calendar.DATE),
-				hours.get(), minutes.get(), 0)
+		val calendar = Calendar.getInstance()
+		calendar.set(Calendar.HOUR_OF_DAY, hours.get())
+		calendar.set(Calendar.MINUTE, minutes.get())
 		return calendar.time
 	}
 }
