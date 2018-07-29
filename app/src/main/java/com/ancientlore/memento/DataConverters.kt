@@ -7,8 +7,8 @@ import java.util.*
 class DataConverters {
 
 	@TypeConverter
-	fun deserializeDate(str: String) = DateFormat.getInstance().parse(str)
+	fun deserializeDate(time: Long) = Date(time)
 
 	@TypeConverter
-	fun serializeDate(date: Date) = date.toString()
+	fun serializeDate(date: Date) = date.time
 }
