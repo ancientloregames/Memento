@@ -8,20 +8,45 @@ import io.reactivex.subjects.PublishSubject
 import java.util.*
 
 
-class AlarmActivityViewModel: ViewModel() {
+class AlarmActivityViewModel: ViewModel {
+
+	val id: Long
 
 	val title = ObservableField<String>("")
 
+	/* FIXME two-way dataBinding doesn't work properly at this time. The binding of the minute attribute
+	*  changes the hour filed in the View class https://issuetracker.google.com/issues/111948800
+	*/
 	val hours = ObservableInt(0)
 	val minutes = ObservableInt(0)
 
 	private val submitAlarmEvent = PublishSubject.create<Alarm>()
 
+	constructor() {
+		id = 0
+
+		applyDate(null)
+	}
+
+	constructor(alarm: Alarm) {
+		id = alarm.id
+		title.set(alarm.title)
+
+		applyDate(alarm.date)
+	}
+
 	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
 
 	fun submitAlarmEvent() = submitAlarmEvent as Observable<Alarm>
 
-	private fun createAlarm() = Alarm(0, title.get()!!, getDate())
+	private fun createAlarm() = Alarm(id, title.get()!!, getDate())
+
+	private fun applyDate(date: Date?) {
+		val calendar = Calendar.getInstance()
+		date?.let { calendar.time = it }
+		hours.set(calendar.get(Calendar.HOUR_OF_DAY))
+		minutes.set(calendar.get(Calendar.MINUTE))
+	}
 
 	private fun getDate(): Date {
 		val calendar = Calendar.getInstance()

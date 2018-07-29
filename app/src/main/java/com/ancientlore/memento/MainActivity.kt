@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /* TODO alarmActivity with result
-*  addition to AlarmManager
 *  bottomBar implementation
 *
 * */
@@ -23,6 +22,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 	companion object {
 		const val INTNENT_ADD_ALARM = 101
+		const val INTNENT_MODIFY_ALARM = 102
 	}
 
 	private val dbExec: ExecutorService = Executors.newSingleThreadExecutor { r -> Thread(r, "db_worker") }
@@ -40,12 +40,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 		dbExec.submit {
 			listAdapter = AlarmsListAdapter(this, db.alarmDao().getAll().toMutableList())
+			listAdapter.listener = viewModel
 			alarmListView.adapter = listAdapter
 		}
 
-		viewModel.onAddAlarmEvent()
+		viewModel.addAlarmEvent()
 				.takeUntil(destroyEvent)
 				.subscribe { addAlarmIntent() }
+
+		viewModel.alarmSelectedEvent()
+				.takeUntil(destroyEvent)
+				.subscribe { modifyAlarmIntent(it) }
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -94,5 +99,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	private fun addAlarmIntent() {
 		val intent = Intent(this, AlarmActivity::class.java)
 		startActivityForResult(intent, INTNENT_ADD_ALARM)
+	}
+
+	private fun modifyAlarmIntent(alarm: Alarm) {
+		val intent = Intent(this, AlarmActivity::class.java)
+		intent.putExtra(EXTRA_ALARM, alarm)
+		startActivityForResult(intent, INTNENT_MODIFY_ALARM)
 	}
 }

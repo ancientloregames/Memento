@@ -23,7 +23,11 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 
 	override fun getBindingVariable() = BR.viewModel
 
-	override fun createViewModel() = AlarmActivityViewModel()
+	override fun createViewModel() : AlarmActivityViewModel {
+		return intent.getParcelableExtra<Alarm>(EXTRA_ALARM)
+				?.let { AlarmActivityViewModel(it) }
+				?: AlarmActivityViewModel()
+	}
 
 	override fun getTitleId() = R.string.new_alarm
 

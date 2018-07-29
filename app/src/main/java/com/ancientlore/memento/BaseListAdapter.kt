@@ -10,6 +10,11 @@ import android.view.ViewGroup
 abstract class BaseListAdapter<P, T: BaseListAdapter.ViewHolder<P>>(context: Context, private val items: MutableList<P>):
 		RecyclerView.Adapter<T>() {
 
+	interface Listener<P> {
+		fun onItemSelected(item: P)
+	}
+	var listener: Listener<P>? = null
+
 	private val layoutInflater = LayoutInflater.from(context)
 
 	abstract fun getViewHolderLayoutRes(viewType: Int): Int
@@ -27,7 +32,11 @@ abstract class BaseListAdapter<P, T: BaseListAdapter.ViewHolder<P>>(context: Con
 	}
 
 	override fun onBindViewHolder(holder: T, index: Int) {
+		val item = items[index]
 		holder.bind(items[index])
+		holder.onClick(Runnable {
+			listener?.onItemSelected(item)
+		})
 	}
 
 	@UiThread
@@ -36,5 +45,8 @@ abstract class BaseListAdapter<P, T: BaseListAdapter.ViewHolder<P>>(context: Con
 		notifyItemInserted(itemCount - 1)
 	}
 
-	abstract class ViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemView), Bindable<T>
+	abstract class ViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemView), Bindable<T>, Clickable {
+
+		override fun onClick(action: Runnable) { itemView.setOnClickListener { action.run() } }
+	}
 }
