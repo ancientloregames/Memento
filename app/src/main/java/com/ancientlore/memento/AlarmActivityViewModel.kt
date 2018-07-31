@@ -39,7 +39,7 @@ class AlarmActivityViewModel: ViewModel {
 
 	fun submitAlarmEvent() = submitAlarmEvent as Observable<Alarm>
 
-	private fun createAlarm() = Alarm(id, title.get()!!, getDate())
+	private fun createAlarm() = Alarm(id, title.get()!!, getDate(), true)
 
 	private fun applyDate(date: Date?) {
 		val calendar = Calendar.getInstance()

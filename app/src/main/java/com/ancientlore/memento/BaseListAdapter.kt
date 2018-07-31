@@ -1,19 +1,22 @@
 package com.ancientlore.memento
 
 import android.content.Context
+import android.support.annotation.CallSuper
 import android.support.annotation.UiThread
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-abstract class BaseListAdapter<P, T: BaseListAdapter.ViewHolder<P>>(context: Context, private val items: MutableList<P>):
-		RecyclerView.Adapter<T>() {
+abstract class BaseListAdapter<
+		P,
+		T: BaseListAdapter.ViewHolder<P>,
+		F: BaseListAdapter.Listener<P>>(context: Context, internal val items: MutableList<P>): RecyclerView.Adapter<T>() {
 
 	interface Listener<P> {
 		fun onItemSelected(item: P)
 	}
-	var listener: Listener<P>? = null
+	var listener: F? = null
 
 	private val layoutInflater = LayoutInflater.from(context)
 
@@ -31,6 +34,7 @@ abstract class BaseListAdapter<P, T: BaseListAdapter.ViewHolder<P>>(context: Con
 		return getViewHolder(layout)
 	}
 
+	@CallSuper
 	override fun onBindViewHolder(holder: T, index: Int) {
 		val item = items[index]
 		holder.bind(items[index])
@@ -44,6 +48,19 @@ abstract class BaseListAdapter<P, T: BaseListAdapter.ViewHolder<P>>(context: Con
 		items.add(newItem)
 		notifyItemInserted(itemCount - 1)
 	}
+
+	@UiThread
+	fun updateItem(updatedItem: P) {
+		items.indexOfFirst { compareItems(it, updatedItem) }.takeIf { it != -1 }
+				?.let { index -> updateItemAt(index, updatedItem) }
+	}
+
+	private fun updateItemAt(index: Int, updatedItem: P) {
+		items[index] = updatedItem
+		notifyItemChanged(index)
+	}
+
+	abstract fun compareItems(first: P, second: P) : Boolean
 
 	abstract class ViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemView), Bindable<T>, Clickable {
 

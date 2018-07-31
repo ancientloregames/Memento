@@ -51,6 +51,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		viewModel.alarmSelectedEvent()
 				.takeUntil(destroyEvent)
 				.subscribe { modifyAlarmIntent(it) }
+
+		viewModel.alarmSwitchedEvent()
+				.takeUntil(destroyEvent)
+				.subscribe { switchAlarmState(it.first, it.second) }
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -79,8 +83,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		listAdapter.addItem(alarm)
 	}
 
+	private fun updateAlarm(alarm: Alarm) {
+		updateAlarmInDb(alarm)
+		runOnUiThread { listAdapter.updateItem(alarm) }
+	}
+
 	private fun addAlarmToDb(alarm: Alarm) {
 		dbExec.submit { db.alarmDao().insert(alarm) }
+	}
+
+	private fun updateAlarmInDb(alarm: Alarm) {
+		dbExec.submit { db.alarmDao().update(alarm) }
 	}
 
 	private fun scheduleAlarm(alarm: Alarm) {
@@ -105,5 +118,18 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		val intent = Intent(this, AlarmActivity::class.java)
 		intent.putExtra(EXTRA_ALARM, alarm)
 		startActivityForResult(intent, INTNENT_MODIFY_ALARM)
+	}
+
+	private fun switchAlarmState(alarm: Alarm, isActive: Boolean) {
+		alarm.active = isActive
+
+		updateAlarm(alarm)
+
+		when (isActive) {
+			true -> {
+			}
+			else -> {
+			}
+		}
 	}
 }

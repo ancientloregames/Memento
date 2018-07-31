@@ -10,17 +10,20 @@ import java.util.*
 @Entity(tableName = "alarms")
 data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 				 @field:ColumnInfo var title: String = "",
-				 @field:ColumnInfo var date: Date): Parcelable {
+				 @field:ColumnInfo var date: Date,
+				 @field:ColumnInfo var active: Boolean): Parcelable {
 
 	constructor(parcel: Parcel) : this(
 			parcel.readLong(),
 			parcel.readString(),
-			Date(parcel.readLong()))
+			Date(parcel.readLong()),
+			parcel.readInt() != 0)
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeLong(id)
 		parcel.writeString(title)
 		parcel.writeLong(date.time)
+		parcel.writeInt(if (active) 1 else 0)
 	}
 
 	override fun describeContents() = 0
