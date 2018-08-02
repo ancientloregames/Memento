@@ -1,11 +1,7 @@
 package com.ancientlore.memento
 
 import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import com.ancientlore.memento.AlarmActivity.Companion.EXTRA_ALARM
@@ -28,8 +24,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	private val dbExec: ExecutorService = Executors.newSingleThreadExecutor { r -> Thread(r, "db_worker") }
 
 	private val db by lazy { AlarmsDatabase.getInstance(this) }
-
-	private val alarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
 
 	private lateinit var listAdapter: AlarmsListAdapter
 
@@ -79,7 +73,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 	private fun addAlarm(alarm: Alarm) {
 		addAlarmToDb(alarm)
-		scheduleAlarm(alarm)
+		AlarmReceiver.scheduleAlarm(this, alarm)
 		listAdapter.addItem(alarm)
 	}
 
@@ -94,19 +88,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 
 	private fun updateAlarmInDb(alarm: Alarm) {
 		dbExec.submit { db.alarmDao().update(alarm) }
-	}
-
-	private fun scheduleAlarm(alarm: Alarm) {
-		val intent = Intent(this, AlarmReceiver::class.java)
-		intent.putExtra(EXTRA_ALARM, alarm)
-
-		val pendingIntent =
-				PendingIntent.getBroadcast(this, alarm.id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-			alarmManager.set(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
-		else
-			alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
 	}
 
 	private fun addAlarmIntent() {
@@ -126,10 +107,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		updateAlarm(alarm)
 
 		when (isActive) {
-			true -> {
-			}
-			else -> {
-			}
+			true -> AlarmReceiver.scheduleAlarm(this, alarm)
+			else -> AlarmReceiver.cancelAlarm(this, alarm)
 		}
 	}
 }
