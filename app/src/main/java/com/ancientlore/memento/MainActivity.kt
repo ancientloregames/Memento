@@ -74,7 +74,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	private fun addAlarm(alarm: Alarm) {
 		addAlarmToDb(alarm)
 		AlarmReceiver.scheduleAlarm(this, alarm)
-		listAdapter.addItem(alarm)
+		runOnUiThread { listAdapter.addItem(alarm) }
 	}
 
 	private fun updateAlarm(alarm: Alarm) {
