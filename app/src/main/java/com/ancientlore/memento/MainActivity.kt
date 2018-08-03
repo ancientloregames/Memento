@@ -17,8 +17,8 @@ import java.util.concurrent.Executors
 class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() {
 
 	companion object {
-		const val INTNENT_ADD_ALARM = 101
-		const val INTNENT_MODIFY_ALARM = 102
+		const val INTENT_ADD_ALARM = 101
+		const val INTENT_MODIFY_ALARM = 102
 	}
 
 	private val dbExec: ExecutorService = Executors.newSingleThreadExecutor { r -> Thread(r, "db_worker") }
@@ -57,9 +57,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		if (resultCode != Activity.RESULT_OK) return
 
 		when (requestCode) {
-			INTNENT_ADD_ALARM ->
-				data?.let { it.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)
-							?.let { addAlarm(it) } }
+			INTENT_ADD_ALARM ->
+				data?.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)?.let {
+					addAlarm(it) }
+			INTENT_MODIFY_ALARM ->
+				data?.getLongExtra(AlarmActivity.EXTRA_DELETE_ALARM_ID, -1).takeIf { it != -1L }?.let {
+					deleteAlarm(it) }
 		}
 	}
 
@@ -82,6 +85,14 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		runOnUiThread { listAdapter.updateItem(alarm) }
 	}
 
+	private fun deleteAlarm(id: Long) {
+		listAdapter.findItem(id)?.let {
+			runOnUiThread { listAdapter.deleteItem(it) }
+			AlarmReceiver.cancelAlarm(this, it)
+			deleteAlarmInDb(it)
+		}
+	}
+
 	private fun addAlarmToDb(alarm: Alarm) {
 		dbExec.submit { db.alarmDao().insert(alarm) }
 	}
@@ -90,15 +101,19 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		dbExec.submit { db.alarmDao().update(alarm) }
 	}
 
+	private fun deleteAlarmInDb(alarm: Alarm) {
+		dbExec.submit { db.alarmDao().delete(alarm) }
+	}
+
 	private fun addAlarmIntent() {
 		val intent = Intent(this, AlarmActivity::class.java)
-		startActivityForResult(intent, INTNENT_ADD_ALARM)
+		startActivityForResult(intent, INTENT_ADD_ALARM)
 	}
 
 	private fun modifyAlarmIntent(alarm: Alarm) {
 		val intent = Intent(this, AlarmActivity::class.java)
 		intent.putExtra(EXTRA_ALARM, alarm)
-		startActivityForResult(intent, INTNENT_MODIFY_ALARM)
+		startActivityForResult(intent, INTENT_MODIFY_ALARM)
 	}
 
 	private fun switchAlarmState(alarm: Alarm, isActive: Boolean) {

@@ -22,6 +22,8 @@ class AlarmActivityViewModel: ViewModel {
 
 	private val submitAlarmEvent = PublishSubject.create<Alarm>()
 
+	private val deleteAlarmEvent = PublishSubject.create<Long>()
+
 	constructor() {
 		id = 0
 
@@ -37,7 +39,7 @@ class AlarmActivityViewModel: ViewModel {
 
 	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
 
-	fun submitAlarmEvent() = submitAlarmEvent as Observable<Alarm>
+	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
 
 	private fun createAlarm() = Alarm(id, title.get()!!, getDate(), true)
 
@@ -54,4 +56,8 @@ class AlarmActivityViewModel: ViewModel {
 		calendar.set(Calendar.MINUTE, minutes.get())
 		return calendar.time
 	}
+
+	fun submitAlarmEvent() = submitAlarmEvent as Observable<Alarm>
+
+	fun deleteAlarmEvent() = deleteAlarmEvent as Observable<Long>
 }

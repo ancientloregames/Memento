@@ -28,6 +28,8 @@ class AlarmsListAdapter(context: Context, items: MutableList<Alarm>):
 		}
 	}
 
+	fun findItem(id: Long) = items.find { it.id == id }
+
 	override fun compareItems(first: Alarm, second: Alarm) = first.id == second.id
 
 	class ViewHolder(itemView: View): BaseListAdapter.ViewHolder<Alarm>(itemView) {

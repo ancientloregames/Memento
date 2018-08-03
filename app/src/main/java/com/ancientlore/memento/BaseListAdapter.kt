@@ -55,6 +55,17 @@ abstract class BaseListAdapter<
 				?.let { index -> updateItemAt(index, updatedItem) }
 	}
 
+	@UiThread
+	fun deleteItem(itemToDelete: P): Boolean {
+		val index = items.indexOf(itemToDelete)
+		if (index != -1) {
+			items.removeAt(index)
+			notifyItemRemoved(index)
+			return true
+		}
+		return false
+	}
+
 	private fun updateItemAt(index: Int, updatedItem: P) {
 		items[index] = updatedItem
 		notifyItemChanged(index)
