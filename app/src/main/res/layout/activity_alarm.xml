@@ -8,70 +8,125 @@
 			name="viewModel"
 			type="com.ancientlore.memento.AlarmActivityViewModel"/>
 	</data>
-	<android.support.constraint.ConstraintLayout
+	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:orientation="vertical"
 		>
 
-		<include
-			layout="@layout/appbar"
-			android:id="@+id/include"
-			/>
+		<include layout="@layout/appbar"
+			android:id="@+id/appbar"/>
 
-		<TimePicker
-			android:id="@+id/timePicker"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:layout_margin="8dp"
-			android:timePickerMode="spinner"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/include"
-			app:layout_constraintBottom_toTopOf="@+id/wordWrapper"
-			tools:targetApi="lollipop"
-			android:hour="@={viewModel.hours}"
-			android:minute="@={viewModel.minutes}"/>
-
-		<android.support.design.widget.TextInputLayout
-			android:id="@+id/wordWrapper"
-			android:layout_width="0dp"
-			android:layout_height="57dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			android:layout_marginLeft="8dp"
-			android:layout_marginStart="8dp"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHorizontal_bias="0.5"
-			app:layout_constraintTop_toBottomOf="@+id/timePicker"
-			app:layout_constraintVertical_chainStyle="packed"
-			app:layout_constraintVertical_bias="0.0"
-			android:layout_marginTop="8dp"
+		<ScrollView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:scrollbarStyle="outsideOverlay"
+			android:layout_below="@+id/appbar"
 			>
-			<android.support.v7.widget.AppCompatEditText
-				android:id="@+id/word"
+
+			<android.support.constraint.ConstraintLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:singleLine="true"
-				android:maxLines="1"
-				android:hint="@string/title"
-				android:text="@={viewModel.title}"
-				/>
-		</android.support.design.widget.TextInputLayout>
+				>
+
+				<TimePicker
+					android:id="@+id/timePicker"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:layout_margin="8dp"
+					android:timePickerMode="spinner"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintBottom_toTopOf="@+id/wordWrapper"
+					tools:targetApi="lollipop"
+					android:hour="@={viewModel.hours}"
+					android:minute="@={viewModel.minutes}"/>
+
+				<android.support.design.widget.TextInputLayout
+					android:id="@+id/wordWrapper"
+					android:layout_width="0dp"
+					android:layout_height="57dp"
+					android:layout_marginEnd="8dp"
+					android:layout_marginRight="8dp"
+					android:layout_marginLeft="8dp"
+					android:layout_marginStart="8dp"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintHorizontal_bias="0.5"
+					app:layout_constraintTop_toBottomOf="@+id/timePicker"
+					app:layout_constraintVertical_chainStyle="packed"
+					app:layout_constraintVertical_bias="0.0"
+					android:layout_marginTop="8dp"
+					>
+					<android.support.v7.widget.AppCompatEditText
+						android:id="@+id/word"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:singleLine="true"
+						android:maxLines="1"
+						android:hint="@string/title"
+						android:text="@={viewModel.title}"
+						/>
+				</android.support.design.widget.TextInputLayout>
+
+				<RelativeLayout
+					android:id="@+id/periodWrapper"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:onClick="@{() -> viewModel.onChoosePeriodClicked()}"
+					app:layout_constraintTop_toBottomOf="@+id/wordWrapper"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					>
+
+					<TextView
+						android:id="@+id/period_title"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/period"
+						android:textSize="18sp"
+						android:layout_margin="8dp"
+						android:layout_alignParentStart="true"
+						android:layout_alignParentLeft="true"
+						/>
+
+					<TextView
+						android:id="@+id/period_value"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@={viewModel.periodTitle}"
+						android:textSize="18sp"
+						android:layout_margin="8dp"
+						android:layout_alignParentEnd="true"
+						android:layout_alignParentRight="true"
+						android:layout_toEndOf="@+id/period_title"
+						android:layout_toRightOf="@+id/period_title"
+						android:gravity="end"
+						tools:text="@string/onetime"
+						/>
+				</RelativeLayout>
+			</android.support.constraint.ConstraintLayout>
+
+		</ScrollView>
 
 		<android.support.design.widget.FloatingActionButton
 			android:id="@+id/submitButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintBottom_toBottomOf="parent"
 			android:layout_marginBottom="16dp"
 			android:layout_marginEnd="16dp"
 			android:layout_marginRight="16dp"
 			app:backgroundTint="#00ce0b"
 			app:srcCompat="@drawable/ic_check"
 			android:onClick="@{() -> viewModel.onSubmitClicked()}"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
 			/>
-	</android.support.constraint.ConstraintLayout>
+	</RelativeLayout>
+
+
 </layout>

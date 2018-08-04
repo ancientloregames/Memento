@@ -20,6 +20,12 @@ class AlarmActivityViewModel: ViewModel {
 	val hours = ObservableInt(0)
 	val minutes = ObservableInt(0)
 
+	val periodTitle = ObservableField<String>("")
+
+	private var currentPeriod = BooleanArray(7) { false }
+
+	private val choosePeriodEvent = PublishSubject.create<BooleanArray>()
+
 	private val submitAlarmEvent = PublishSubject.create<Alarm>()
 
 	private val deleteAlarmEvent = PublishSubject.create<Long>()
@@ -37,11 +43,18 @@ class AlarmActivityViewModel: ViewModel {
 		applyDate(alarm.date)
 	}
 
+	fun updatePeriod(newPeriod: BooleanArray, periodTitle: String) {
+		currentPeriod = newPeriod
+		this.periodTitle.set(periodTitle)
+	}
+
+	fun onChoosePeriodClicked() { choosePeriodEvent.onNext(currentPeriod) }
+
 	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
 
 	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
 
-	private fun createAlarm() = Alarm(id, title.get()!!, getDate(), true)
+	private fun createAlarm() = Alarm(id, title.get()!!, getDate(), currentPeriod, true)
 
 	private fun applyDate(date: Date?) {
 		val calendar = Calendar.getInstance()
@@ -56,6 +69,8 @@ class AlarmActivityViewModel: ViewModel {
 		calendar.set(Calendar.MINUTE, minutes.get())
 		return calendar.time
 	}
+
+	fun choosePeriodEvent() = choosePeriodEvent as Observable<BooleanArray>
 
 	fun submitAlarmEvent() = submitAlarmEvent as Observable<Alarm>
 
