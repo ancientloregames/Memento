@@ -29,6 +29,8 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
+		supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
 		viewModel.submitAlarmEvent()
 				.take(1)
 				.subscribe { submitAlarm(it) }
@@ -45,6 +47,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
+			android.R.id.home -> finish()
 			R.id.miDelete -> viewModel.onDeleteClicked()
 		}
 		return true
