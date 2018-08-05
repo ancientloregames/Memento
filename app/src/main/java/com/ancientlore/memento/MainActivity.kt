@@ -81,6 +81,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	}
 
 	private fun updateAlarm(alarm: Alarm) {
+		AlarmReceiver.resetAlarm(this, alarm)
+
 		updateAlarmInDb(alarm)
 		runOnUiThread { listAdapter.updateItem(alarm) }
 	}
@@ -88,7 +90,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	private fun deleteAlarm(id: Long) {
 		listAdapter.findItem(id)?.let {
 			runOnUiThread { listAdapter.deleteItem(it) }
-			AlarmReceiver.cancelAlarm(this, it)
+			AlarmReceiver.cancelAlarm(this, it.id.toInt())
 			deleteAlarmInDb(it)
 		}
 	}
@@ -120,10 +122,5 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		alarm.active = isActive
 
 		updateAlarm(alarm)
-
-		when (isActive) {
-			true -> AlarmReceiver.scheduleAlarm(this, alarm)
-			else -> AlarmReceiver.cancelAlarm(this, alarm)
-		}
 	}
 }

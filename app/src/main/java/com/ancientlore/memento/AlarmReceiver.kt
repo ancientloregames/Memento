@@ -34,6 +34,11 @@ class AlarmReceiver: BroadcastReceiver() {
 
 	companion object {
 
+		fun resetAlarm(context: Context, alarm: Alarm) {
+			AlarmReceiver.cancelAlarm(context, alarm.id.toInt())
+			if (alarm.active) AlarmReceiver.scheduleAlarm(context, alarm)
+		}
+
 		fun scheduleAlarm(context: Context, alarm: Alarm) {
 			val intent = Intent(context, AlarmReceiver::class.java)
 			intent.putExtra(AlarmActivity.EXTRA_ALARM, alarm)
@@ -47,10 +52,10 @@ class AlarmReceiver: BroadcastReceiver() {
 				alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
 		}
 
-		fun cancelAlarm(context: Context, alarm: Alarm) {
+		fun cancelAlarm(context: Context, alarmId: Int) {
 			val intent = Intent(context, AlarmReceiver::class.java)
 			val pendingIntent =
-					PendingIntent.getBroadcast(context, alarm.id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+					PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
 			val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 			alarmManager.cancel(pendingIntent)
