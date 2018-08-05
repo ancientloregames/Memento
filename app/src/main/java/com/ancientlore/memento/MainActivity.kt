@@ -61,8 +61,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 				data?.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)?.let {
 					addAlarm(it) }
 			INTENT_MODIFY_ALARM ->
-				data?.getLongExtra(AlarmActivity.EXTRA_DELETE_ALARM_ID, -1).takeIf { it != -1L }?.let {
-					deleteAlarm(it) }
+				data?.getLongExtra(AlarmActivity.EXTRA_DELETE_ALARM_ID, -1).takeIf { it != -1L }
+						?.run { listAdapter.findItem(this) }?.run { deleteAlarm(this) }
 		}
 	}
 
@@ -87,12 +87,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		runOnUiThread { listAdapter.updateItem(alarm) }
 	}
 
-	private fun deleteAlarm(id: Long) {
-		listAdapter.findItem(id)?.let {
-			runOnUiThread { listAdapter.deleteItem(it) }
-			AlarmReceiver.cancelAlarm(this, it.id.toInt())
-			deleteAlarmInDb(it)
-		}
+	private fun deleteAlarm(alarm: Alarm) {
+		AlarmReceiver.cancelAlarm(this, alarm.id.toInt())
+
+		deleteAlarmInDb(alarm)
+		runOnUiThread { listAdapter.deleteItem(alarm) }
 	}
 
 	private fun addAlarmToDb(alarm: Alarm) {
