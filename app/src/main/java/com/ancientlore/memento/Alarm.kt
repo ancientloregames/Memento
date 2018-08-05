@@ -24,6 +24,14 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 			parcel.createBooleanArray(),
 			parcel.readInt() != 0)
 
+	constructor(templateAlarm: Alarm) : this(
+			templateAlarm.id,
+			templateAlarm.title + "",
+			Date(templateAlarm.date.time),
+			templateAlarm.activeDays.copyOf(),
+			templateAlarm.active
+	)
+
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeLong(id)
 		parcel.writeString(title)
@@ -42,14 +50,61 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 		override fun newArray(size: Int) = arrayOfNulls<Alarm>(size)
 
 		@Retention(RetentionPolicy.SOURCE)
-		@IntDef(MON, TUES, WED, THURS, FRI, SAT, SUN)
+		@IntDef(NONE, MON, TUE, WED, THU, FRI, SAT, SUN)
 		internal annotation class Days
+		const val NONE = -1
 		const val MON = 0
-		const val TUES = 1
+		const val TUE = 1
 		const val WED = 2
-		const val THURS = 3
+		const val THU = 3
 		const val FRI = 4
 		const val SAT = 5
 		const val SUN = 6
+
+		fun getDaysToIncrement(currentDay: Int, activeDays: BooleanArray) : Int {
+			return if (activeDays.any { it }) {
+				val currentPos = dayToPos(currentDay)
+				val nextPos = if (currentPos < SUN) currentPos + 1 else MON
+				var incremet = 1
+				for (i in nextPos until activeDays.size) {
+					if (!activeDays[i]) incremet++
+					else break
+				}
+				incremet
+			}
+			else 0
+		}
+
+		fun getNextAlarmDay(currentDay: Int, activeDays: BooleanArray) : Int {
+			val currentPos = dayToPos(currentDay)
+			val nextPos = if (currentPos < SUN) currentPos + 1 else MON
+			for (i in nextPos until activeDays.size) {
+				if (activeDays[i])
+					return posToDay(i)
+			}
+			return NONE
+		}
+
+		private fun dayToPos(day: Int) = when (day) {
+			Calendar.MONDAY -> MON
+			Calendar.TUESDAY -> TUE
+			Calendar.WEDNESDAY -> WED
+			Calendar.THURSDAY -> THU
+			Calendar.FRIDAY -> FRI
+			Calendar.SATURDAY -> SAT
+			Calendar.SUNDAY -> SUN
+			else -> NONE
+		}
+
+		private fun posToDay(day: Int) = when (day) {
+			MON -> Calendar.MONDAY
+			TUE -> Calendar.TUESDAY
+			WED -> Calendar.WEDNESDAY
+			THU -> Calendar.THURSDAY
+			FRI -> Calendar.FRIDAY
+			SAT -> Calendar.SATURDAY
+			SUN -> Calendar.SUNDAY
+			else -> NONE
+		}
 	}
 }

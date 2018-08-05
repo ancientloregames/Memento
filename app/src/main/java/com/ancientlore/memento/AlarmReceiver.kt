@@ -10,6 +10,8 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
+import android.util.Log
+import java.util.*
 
 class AlarmReceiver: BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
@@ -35,6 +37,24 @@ class AlarmReceiver: BroadcastReceiver() {
 				.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
 
 		noticeManager.notify(noticeId, noticeBuilder.build())
+
+		sheduleNextAlarm(context, alarm)
+	}
+
+	private fun sheduleNextAlarm(context: Context, alarm: Alarm) {
+		val calendar = Calendar.getInstance()
+		val currentDay = calendar.get(Calendar.DAY_OF_WEEK)
+		Alarm.getDaysToIncrement(currentDay, alarm.activeDays).takeIf { it != 0 }
+				?.let { increment ->
+					val nextCalendar = Calendar.getInstance()
+					nextCalendar.timeInMillis = alarm.date.time
+					nextCalendar.add(Calendar.DAY_OF_MONTH, increment)
+					val nextAlarm = Alarm(alarm)
+					nextAlarm.date = nextCalendar.time
+					Log.i("AlarmReceiver", "delay: " + (nextCalendar.time.time - alarm.date.time))
+
+					scheduleAlarm(context, nextAlarm)
+				}
 	}
 
 	companion object {
