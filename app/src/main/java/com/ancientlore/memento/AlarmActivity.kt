@@ -23,7 +23,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 
 	override fun createViewModel() : AlarmActivityViewModel {
 		return intent.getParcelableExtra<Alarm>(EXTRA_ALARM)
-				?.let { AlarmActivityViewModel(it) }
+				?.let { AlarmActivityViewModel(it, getPeriodTitle(it.activeDays)) }
 				?: AlarmActivityViewModel()
 	}
 

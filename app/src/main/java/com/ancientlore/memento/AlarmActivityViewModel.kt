@@ -36,11 +36,13 @@ class AlarmActivityViewModel: ViewModel {
 		applyDate(null)
 	}
 
-	constructor(alarm: Alarm) {
+	constructor(alarm: Alarm, periodTitle: String) {
 		id = alarm.id
 		title.set(alarm.title)
 
 		applyDate(alarm.date)
+
+		updatePeriod(alarm.activeDays, periodTitle)
 	}
 
 	fun updatePeriod(newPeriod: BooleanArray, periodTitle: String) {
