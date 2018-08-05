@@ -57,12 +57,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		if (resultCode != Activity.RESULT_OK) return
 
 		when (requestCode) {
-			INTENT_ADD_ALARM ->
-				data?.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)?.let {
-					addAlarm(it) }
-			INTENT_MODIFY_ALARM ->
-				data?.getLongExtra(AlarmActivity.EXTRA_DELETE_ALARM_ID, -1).takeIf { it != -1L }
-						?.run { listAdapter.findItem(this) }?.run { deleteAlarm(this) }
+			INTENT_ADD_ALARM -> data?.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)
+					?.run { addAlarm(this) }
+			INTENT_MODIFY_ALARM -> data?.getLongExtra(AlarmActivity.EXTRA_DELETE_ALARM_ID, -1)
+					.takeIf { it != -1L }
+					?.run { listAdapter.findItem(this) }
+					?.run { deleteAlarm(this) }
 		}
 	}
 
@@ -75,8 +75,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	override fun getTitleId() = R.string.app_name
 
 	private fun addAlarm(alarm: Alarm) {
-		addAlarmToDb(alarm)
 		AlarmReceiver.scheduleAlarm(this, alarm)
+
+		addAlarmToDb(alarm)
 		runOnUiThread { listAdapter.addItem(alarm) }
 	}
 
