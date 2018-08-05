@@ -7,7 +7,6 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
 
-
 class AlarmActivityViewModel: ViewModel {
 
 	val id: Long
@@ -66,9 +65,12 @@ class AlarmActivityViewModel: ViewModel {
 	}
 
 	private fun getDate(): Date {
-		val calendar = Calendar.getInstance()
-		calendar.set(Calendar.HOUR_OF_DAY, hours.get())
-		calendar.set(Calendar.MINUTE, minutes.get())
+		val calendar = Calendar.getInstance().apply {
+			val dayDelay = Alarm.getDaysToIncrement(get(Calendar.DAY_OF_WEEK), currentPeriod)
+			add(Calendar.DAY_OF_MONTH, dayDelay)
+			set(Calendar.HOUR_OF_DAY, hours.get())
+			set(Calendar.MINUTE, minutes.get())
+		}
 		return calendar.time
 	}
 

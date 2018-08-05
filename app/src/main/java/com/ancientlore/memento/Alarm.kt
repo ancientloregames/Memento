@@ -61,19 +61,20 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 		const val SAT = 5
 		const val SUN = 6
 
-		fun getDaysToIncrement(currentDay: Int, activeDays: BooleanArray) : Int {
-			return if (activeDays.any { it }) {
-				val currentPos = dayToPos(currentDay)
-				val nextPos = if (currentPos < SUN) currentPos + 1 else MON
-				var incremet = 1
-				for (i in nextPos until activeDays.size) {
-					if (!activeDays[i]) incremet++
-					else break
+		// TODO this looks bad. Need refactor
+		fun getDaysToIncrement(currentDay: Int, activeDays: BooleanArray) =
+				if (activeDays[dayToPos(currentDay)]) 0
+				else if (activeDays.any { it }) {
+					val currentPos = dayToPos(currentDay)
+					val nextPos = if (currentPos < SUN) currentPos + 1 else MON
+					var incremet = 1
+					for (i in nextPos until activeDays.size) {
+						if (!activeDays[i]) incremet++
+						else break
+					}
+					incremet
 				}
-				incremet
-			}
-			else 0
-		}
+				else 0
 
 		fun getNextAlarmDay(currentDay: Int, activeDays: BooleanArray) : Int {
 			val currentPos = dayToPos(currentDay)
