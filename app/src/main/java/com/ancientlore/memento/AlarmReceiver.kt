@@ -6,8 +6,10 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.RingtoneManager
 import android.os.Build
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 
 class AlarmReceiver: BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
@@ -22,17 +24,22 @@ class AlarmReceiver: BroadcastReceiver() {
 		val pendingIntent = PendingIntent.getActivity(context, noticeId, noticeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
 		val noticeBuilder = NotificationCompat.Builder(context)
-				.setSmallIcon(R.drawable.ic_check)
+				.setSmallIcon(R.drawable.ic_alarm)
 				.setContentTitle(context.getString(R.string.app_name))
 				.setContentText(alarm.title)
 				.setTicker(alarm.title)
 				.setContentIntent(pendingIntent)
 				.setPriority(NotificationManager.IMPORTANCE_HIGH)
+				.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
+				.setVibrate(defaultVibratePattern)
+				.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
 
 		noticeManager.notify(noticeId, noticeBuilder.build())
 	}
 
 	companion object {
+
+		val defaultVibratePattern = longArrayOf(0, 250, 250, 250)
 
 		fun resetAlarm(context: Context, alarm: Alarm) {
 			AlarmReceiver.cancelAlarm(context, alarm.id.toInt())
