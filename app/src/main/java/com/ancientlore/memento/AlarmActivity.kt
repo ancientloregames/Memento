@@ -24,7 +24,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 	override fun createViewModel() : AlarmActivityViewModel {
 		return intent.getParcelableExtra<Alarm>(EXTRA_ALARM)
 				?.let { AlarmActivityViewModel(it, getPeriodTitle(it.activeDays)) }
-				?: AlarmActivityViewModel()
+				?: AlarmActivityViewModel(getString(R.string.onetime))
 	}
 
 	override fun getTitleId() = R.string.new_alarm

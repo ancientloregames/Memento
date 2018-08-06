@@ -29,10 +29,12 @@ class AlarmActivityViewModel: ViewModel {
 
 	private val deleteAlarmEvent = PublishSubject.create<Long>()
 
-	constructor() {
+	constructor(periodTitle: String) {
 		id = 0
 
 		applyDate(null)
+
+		this.periodTitle.set(periodTitle)
 	}
 
 	constructor(alarm: Alarm, periodTitle: String) {
