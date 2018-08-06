@@ -118,8 +118,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		startActivityForResult(intent, INTENT_MODIFY_ALARM)
 	}
 
-	private fun switchAlarmState(alarm: Alarm, isActive: Boolean) {
-		alarm.active = isActive
+	private fun switchAlarmState(alarm: Alarm, isEnabled: Boolean) {
+		alarm.enabled = isEnabled
 
 		updateAlarm(alarm)
 	}

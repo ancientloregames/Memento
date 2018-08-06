@@ -63,7 +63,7 @@ class AlarmReceiver: BroadcastReceiver() {
 
 		fun resetAlarm(context: Context, alarm: Alarm) {
 			AlarmReceiver.cancelAlarm(context, alarm.id.toInt())
-			if (alarm.active) AlarmReceiver.scheduleAlarm(context, alarm)
+			if (alarm.enabled) AlarmReceiver.scheduleAlarm(context, alarm)
 		}
 
 		fun scheduleAlarm(context: Context, alarm: Alarm) {

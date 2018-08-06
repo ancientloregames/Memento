@@ -15,7 +15,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 				 @field:ColumnInfo var title: String = "",
 				 @field:ColumnInfo var date: Date,
 				 @field:ColumnInfo var activeDays: BooleanArray,
-				 @field:ColumnInfo var active: Boolean): Parcelable {
+				 @field:ColumnInfo var enabled: Boolean): Parcelable {
 
 	constructor(parcel: Parcel) : this(
 			parcel.readLong(),
@@ -29,7 +29,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 			templateAlarm.title + "",
 			Date(templateAlarm.date.time),
 			templateAlarm.activeDays.copyOf(),
-			templateAlarm.active
+			templateAlarm.enabled
 	)
 
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -37,7 +37,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 		parcel.writeString(title)
 		parcel.writeLong(date.time)
 		parcel.writeBooleanArray(activeDays)
-		parcel.writeInt(if (active) 1 else 0)
+		parcel.writeInt(if (enabled) 1 else 0)
 	}
 
 

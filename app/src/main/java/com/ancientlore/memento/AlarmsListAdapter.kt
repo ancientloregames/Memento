@@ -46,7 +46,7 @@ class AlarmsListAdapter(context: Context, items: MutableList<Alarm>):
 		override fun bind(data: Alarm) {
 			titleView.text = data.title
 			subtitleView.text = data.date.toString()
-			switchView.isChecked = data.active
+			switchView.isChecked = data.enabled
 
 			switchView.setOnClickListener { listener?.onSwitchClicked(switchView.isChecked) }
 		}
