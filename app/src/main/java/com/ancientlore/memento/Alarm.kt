@@ -13,12 +13,14 @@ import java.util.*
 @Entity(tableName = "alarms")
 data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 				 @field:ColumnInfo var title: String = "",
+				 @field:ColumnInfo var message: String = "",
 				 @field:ColumnInfo var date: Date,
 				 @field:ColumnInfo var activeDays: BooleanArray,
 				 @field:ColumnInfo var enabled: Boolean): Parcelable {
 
 	constructor(parcel: Parcel) : this(
 			parcel.readLong(),
+			parcel.readString(),
 			parcel.readString(),
 			Date(parcel.readLong()),
 			parcel.createBooleanArray(),
@@ -27,6 +29,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 	constructor(templateAlarm: Alarm) : this(
 			templateAlarm.id,
 			templateAlarm.title + "",
+			templateAlarm.message + "",
 			Date(templateAlarm.date.time),
 			templateAlarm.activeDays.copyOf(),
 			templateAlarm.enabled
@@ -35,6 +38,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
 		parcel.writeLong(id)
 		parcel.writeString(title)
+		parcel.writeString(message)
 		parcel.writeLong(date.time)
 		parcel.writeBooleanArray(activeDays)
 		parcel.writeInt(if (enabled) 1 else 0)

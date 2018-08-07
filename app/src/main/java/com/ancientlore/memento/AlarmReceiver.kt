@@ -27,9 +27,10 @@ class AlarmReceiver: BroadcastReceiver() {
 
 		val noticeBuilder = NotificationCompat.Builder(context)
 				.setSmallIcon(R.drawable.ic_alarm)
-				.setContentTitle(context.getString(R.string.app_name))
-				.setContentText(alarm.title)
 				.setTicker(alarm.title)
+				.setContentTitle(alarm.title)
+				.setContentInfo(context.getString(R.string.app_name))
+				.setContentText(alarm.message)
 				.setContentIntent(pendingIntent)
 				.setPriority(NotificationManager.IMPORTANCE_HIGH)
 				.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))

@@ -12,6 +12,7 @@ class AlarmActivityViewModel: ViewModel {
 	val id: Long
 
 	val title = ObservableField<String>("")
+	val messageField = ObservableField<String>("")
 
 	/* FIXME two-way dataBinding doesn't work properly at this time. The binding of the minute attribute
 	*  changes the hour filed in the View class https://issuetracker.google.com/issues/111948800
@@ -40,6 +41,7 @@ class AlarmActivityViewModel: ViewModel {
 	constructor(alarm: Alarm, periodTitle: String) {
 		id = alarm.id
 		title.set(alarm.title)
+		messageField.set(alarm.message)
 
 		applyDate(alarm.date)
 
@@ -57,7 +59,7 @@ class AlarmActivityViewModel: ViewModel {
 
 	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
 
-	private fun createAlarm() = Alarm(id, title.get()!!, getDate(), currentPeriod, true)
+	private fun createAlarm() = Alarm(id, title.get()!!, messageField.get()!!, getDate(), currentPeriod, true)
 
 	private fun applyDate(date: Date?) {
 		val calendar = Calendar.getInstance()
