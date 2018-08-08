@@ -9,12 +9,14 @@ import android.support.annotation.IntDef
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.util.*
+import android.net.Uri
 
 @Entity(tableName = "alarms")
 data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 				 @field:ColumnInfo var title: String = "",
 				 @field:ColumnInfo var message: String = "",
 				 @field:ColumnInfo var date: Date,
+				 @field:ColumnInfo var sound: Uri,
 				 @field:ColumnInfo var activeDays: BooleanArray,
 				 @field:ColumnInfo var enabled: Boolean): Parcelable {
 
@@ -23,6 +25,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 			parcel.readString(),
 			parcel.readString(),
 			Date(parcel.readLong()),
+			parcel.readParcelable<Uri>(Uri::class.java.classLoader),
 			parcel.createBooleanArray(),
 			parcel.readInt() != 0)
 
@@ -31,6 +34,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 			templateAlarm.title + "",
 			templateAlarm.message + "",
 			Date(templateAlarm.date.time),
+			templateAlarm.sound,
 			templateAlarm.activeDays.copyOf(),
 			templateAlarm.enabled
 	)
@@ -40,6 +44,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
 		parcel.writeString(title)
 		parcel.writeString(message)
 		parcel.writeLong(date.time)
+		parcel.writeParcelable(sound, flags)
 		parcel.writeBooleanArray(activeDays)
 		parcel.writeInt(if (enabled) 1 else 0)
 	}

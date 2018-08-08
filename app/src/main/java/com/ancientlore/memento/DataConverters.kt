@@ -1,6 +1,7 @@
 package com.ancientlore.memento
 
 import android.arch.persistence.room.TypeConverter
+import android.net.Uri
 import java.util.*
 
 class DataConverters {
@@ -28,4 +29,10 @@ class DataConverters {
 		}
 		return result.toString()
 	}
+
+	@TypeConverter
+	fun deserializeUri(path: String) = (Uri.parse(path) ?: Uri.EMPTY)!!
+
+	@TypeConverter
+	fun serializeUri(uri: Uri) = uri.path!!
 }

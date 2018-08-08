@@ -10,7 +10,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-
 class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() {
 
 	companion object {

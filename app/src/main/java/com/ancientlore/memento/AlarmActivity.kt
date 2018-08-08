@@ -3,6 +3,8 @@ package com.ancientlore.memento
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -13,6 +15,8 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 	companion object {
 		const val EXTRA_ALARM = "alarm"
 		const val EXTRA_DELETE_ALARM_ID = "delete_alarm_id"
+
+		const val INTENT_CHOOSE_SOUND = 101
 	}
 
 	private lateinit var days: Array<String>
@@ -41,6 +45,10 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 				.takeUntil(destroyEvent)
 				.subscribe { choosePeriod(it) }
 
+		viewModel.chooseSoundEvent()
+				.takeUntil(destroyEvent)
+				.subscribe { chooseSound(it) }
+
 		viewModel.submitAlarmEvent()
 				.take(1)
 				.subscribe { submitAlarm(it) }
@@ -48,6 +56,21 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 		viewModel.deleteAlarmEvent()
 				.take(1)
 				.subscribe { deleteAlarm(it) }
+	}
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		when (requestCode) {
+			INTENT_CHOOSE_SOUND -> {
+				if (resultCode == Activity.RESULT_OK) {
+					data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+							?.let {
+								val title = RingtoneManager.getRingtone(this, it)?.getTitle(this) ?: ""
+								viewModel.updateSound(title, it)
+							}
+				}
+			}
+			else -> super.onActivityResult(requestCode, resultCode, data)
+		}
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -71,6 +94,17 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 				.setPositiveButton(getString(R.string.done)) { _, _ ->  applyPeriod(currentChoice) }
 				.create()
 				.show()
+	}
+
+	private fun chooseSound(currentRingtone: Uri) {
+		Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+				.apply {
+					putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+					putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.alarm_sound))
+					putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+					putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentRingtone)
+				}
+				.run { startActivityForResult(this, INTENT_CHOOSE_SOUND) }
 	}
 
 	private fun applyPeriod(period: BooleanArray) {
