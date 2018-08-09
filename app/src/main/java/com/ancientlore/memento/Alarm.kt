@@ -3,20 +3,21 @@ package com.ancientlore.memento
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
+import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import android.provider.Settings
 import android.support.annotation.IntDef
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.util.*
-import android.net.Uri
 
 @Entity(tableName = "alarms")
-data class Alarm(@PrimaryKey(autoGenerate = true) var  id: Long = 0,
+data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 				 @field:ColumnInfo var title: String = "",
 				 @field:ColumnInfo var message: String = "",
-				 @field:ColumnInfo var date: Date,
-				 @field:ColumnInfo var sound: Uri,
+				 @field:ColumnInfo var date: Date = Date(),
+				 @field:ColumnInfo var sound: Uri = Settings.System.DEFAULT_ALARM_ALERT_URI,
 				 @field:ColumnInfo var activeDays: BooleanArray,
 				 @field:ColumnInfo var enabled: Boolean): Parcelable {
 
