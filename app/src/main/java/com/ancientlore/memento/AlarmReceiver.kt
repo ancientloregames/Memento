@@ -33,8 +33,10 @@ class AlarmReceiver: BroadcastReceiver() {
 				.setContentIntent(pendingIntent)
 				.setPriority(NotificationManager.IMPORTANCE_HIGH)
 				.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
-				.setVibrate(defaultVibratePattern)
 				.setSound(alarm.sound)
+
+		if (alarm.withVibration)
+			noticeBuilder.setVibrate(defaultVibratePattern)
 
 		noticeManager.notify(noticeId, noticeBuilder.build())
 

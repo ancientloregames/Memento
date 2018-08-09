@@ -1,6 +1,7 @@
 package com.ancientlore.memento
 
 import android.arch.lifecycle.ViewModel
+import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.net.Uri
@@ -16,6 +17,7 @@ class AlarmActivityViewModel: ViewModel {
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")
 	val soundField = ObservableField<String>("")
+	val vibroField = ObservableBoolean(true)
 
 	/* FIXME two-way dataBinding doesn't work properly at this time. The binding of the minute attribute
 	*  changes the hour filed in the View class https://issuetracker.google.com/issues/111948800
@@ -69,13 +71,15 @@ class AlarmActivityViewModel: ViewModel {
 
 	fun onChooseSoundClicked() { chooseSoundEvent.onNext(currentSound) }
 
+	fun onSwitchVibroClicked() { vibroField.set(!vibroField.get()) }
+
 	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
 
 	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
 
 	private fun createAlarm() = Alarm(
 			id, titleField.get()!!, messageField.get()!!, getDate(),
-			currentSound, currentPeriod, true)
+			currentSound, currentPeriod, vibroField.get(), true)
 
 	private fun applyDate(date: Date?) {
 		val calendar = Calendar.getInstance()

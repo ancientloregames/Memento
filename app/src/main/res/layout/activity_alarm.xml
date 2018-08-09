@@ -175,6 +175,43 @@
 						tools:text="Default"
 						/>
 				</RelativeLayout>
+
+				<RelativeLayout
+					android:id="@+id/vibroWrapper"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:onClick="@{() -> viewModel.onSwitchVibroClicked()}"
+					app:layout_constraintTop_toBottomOf="@+id/soundWrapper"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					>
+
+					<TextView
+						android:id="@+id/vibro_title"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/vibration"
+						android:textSize="18sp"
+						android:layout_margin="8dp"
+						android:layout_alignParentStart="true"
+						android:layout_alignParentLeft="true"
+						/>
+
+					<android.support.v7.widget.SwitchCompat
+						android:id="@+id/vibro_switch"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:checked="@={viewModel.vibroField}"
+						android:layout_margin="8dp"
+						android:layout_alignParentEnd="true"
+						android:layout_alignParentRight="true"
+						android:layout_toEndOf="@+id/vibro_title"
+						android:layout_toRightOf="@+id/vibro_title"
+						android:gravity="end"
+						android:clickable="false"
+						/>
+				</RelativeLayout>
 			</android.support.constraint.ConstraintLayout>
 
 		</ScrollView>

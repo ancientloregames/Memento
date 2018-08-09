@@ -19,6 +19,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 				 @field:ColumnInfo var date: Date = Date(),
 				 @field:ColumnInfo var sound: Uri = Settings.System.DEFAULT_ALARM_ALERT_URI,
 				 @field:ColumnInfo var activeDays: BooleanArray,
+				 @field:ColumnInfo var withVibration: Boolean,
 				 @field:ColumnInfo var enabled: Boolean): Parcelable {
 
 	constructor(parcel: Parcel) : this(
@@ -28,6 +29,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 			Date(parcel.readLong()),
 			parcel.readParcelable<Uri>(Uri::class.java.classLoader),
 			parcel.createBooleanArray(),
+			parcel.readInt() != 0,
 			parcel.readInt() != 0)
 
 	constructor(templateAlarm: Alarm) : this(
@@ -37,6 +39,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 			Date(templateAlarm.date.time),
 			templateAlarm.sound,
 			templateAlarm.activeDays.copyOf(),
+			templateAlarm.withVibration,
 			templateAlarm.enabled
 	)
 
@@ -47,6 +50,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 		parcel.writeLong(date.time)
 		parcel.writeParcelable(sound, flags)
 		parcel.writeBooleanArray(activeDays)
+		parcel.writeInt(if (withVibration) 1 else 0)
 		parcel.writeInt(if (enabled) 1 else 0)
 	}
 

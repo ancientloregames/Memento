@@ -12,6 +12,7 @@
 	<string name="sound">Sound</string>
 	<string name="none">None</string>
 	<string name="alarm_sound">Alarm Sound</string>
+	<string name="vibration">Vibration</string>
 
 	<string name="everyday">Everyday</string>
 	<string name="onetime">One time</string>
