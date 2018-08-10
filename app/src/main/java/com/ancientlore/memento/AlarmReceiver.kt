@@ -21,6 +21,9 @@ class AlarmReceiver: BroadcastReceiver() {
 		val noticeIntent = Intent(context, NoticeActivity::class.java)
 		noticeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
 
+		noticeIntent.putExtra(EXTRA_ALARM_TITLE, alarm.title)
+		noticeIntent.putExtra(EXTRA_ALARM_MESSAGE, alarm.message)
+
 		val noticeId = alarm.id.toInt()
 		val pendingIntent = PendingIntent.getActivity(context, noticeId, noticeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
@@ -60,6 +63,8 @@ class AlarmReceiver: BroadcastReceiver() {
 	}
 
 	companion object {
+		const val EXTRA_ALARM_TITLE = "alarm_title"
+		const val EXTRA_ALARM_MESSAGE = "alarm_message"
 
 		val defaultVibratePattern = longArrayOf(0, 250, 250, 250)
 

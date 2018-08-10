@@ -17,7 +17,12 @@ class NoticeActivity: BaseActivity<ActivityNoticeBinding, NoticeActivityViewMode
 
 	override fun getBindingVariable() = BR.viewModel
 
-	override fun createViewModel() = NoticeActivityViewModel()
+	override fun createViewModel() : NoticeActivityViewModel {
+		val title = intent.getStringExtra(AlarmReceiver.EXTRA_ALARM_TITLE) ?: ""
+		val message = intent.getStringExtra(AlarmReceiver.EXTRA_ALARM_MESSAGE) ?: ""
+
+		return NoticeActivityViewModel(title, message)
+	}
 
 	override fun getTitleId() = R.string.app_name
 }
