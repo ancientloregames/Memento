@@ -15,7 +15,7 @@ import java.util.*
 class AlarmReceiver: BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
 
-		val alarm = intent.getParcelableExtra<Alarm>(AlarmActivity.EXTRA_ALARM)
+		val alarm = intent.getByteArrayExtra(EXTRA_ALARM_BYTES).run { unmarshall(Alarm.CREATOR) }
 
 		val noticeManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 		val noticeIntent = Intent(context, NoticeActivity::class.java)
@@ -63,6 +63,7 @@ class AlarmReceiver: BroadcastReceiver() {
 	}
 
 	companion object {
+		const val EXTRA_ALARM_BYTES = "alarm_message_bytes"
 		const val EXTRA_ALARM_TITLE = "alarm_title"
 		const val EXTRA_ALARM_MESSAGE = "alarm_message"
 
@@ -75,7 +76,8 @@ class AlarmReceiver: BroadcastReceiver() {
 
 		fun scheduleAlarm(context: Context, alarm: Alarm) {
 			val intent = Intent(context, AlarmReceiver::class.java)
-			intent.putExtra(AlarmActivity.EXTRA_ALARM, alarm)
+			// Can't pass Parcelable directly on API 24+ due to https://issuetracker.google.com/issues/37097877
+			intent.putExtra(EXTRA_ALARM_BYTES, alarm.marshall())
 			val pendingIntent =
 					PendingIntent.getBroadcast(context, alarm.id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
