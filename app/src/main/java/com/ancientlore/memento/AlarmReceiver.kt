@@ -21,8 +21,8 @@ class AlarmReceiver: BroadcastReceiver() {
 
 		sheduleNextAlarm(context, alarm)
 
-		Intent(context, NoticeActivity::class.java).apply {
-			flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+		Intent(context, NoticeActivity::class.java).run {
+			flags = Intent.FLAG_ACTIVITY_NEW_TASK
 			putExtra(EXTRA_ALARM, alarm)
 			context.startActivity(this)
 		}
