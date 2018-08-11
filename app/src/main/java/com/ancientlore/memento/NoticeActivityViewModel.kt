@@ -5,7 +5,7 @@ import android.databinding.ObservableField
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-class NoticeActivityViewModel(title: String, message: String) : ViewModel() {
+class NoticeActivityViewModel: ViewModel() {
 
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")
@@ -15,9 +15,4 @@ class NoticeActivityViewModel(title: String, message: String) : ViewModel() {
 	fun onDismissClicked() { dismissAlarmEvent.onNext(Any()) }
 
 	fun dismissAlarmEvent() = dismissAlarmEvent as Observable<Any>
-
-	init {
-		titleField.set(title)
-		messageField.set(message)
-	}
 }

@@ -10,40 +10,22 @@ import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import java.text.DateFormat
 import java.util.*
 
 class AlarmReceiver: BroadcastReceiver() {
+
 	override fun onReceive(context: Context, intent: Intent) {
 
 		val alarm = intent.getByteArrayExtra(EXTRA_ALARM_BYTES).run { unmarshall(Alarm.CREATOR) }
 
-		val noticeManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-		val noticeIntent = Intent(context, NoticeActivity::class.java)
-		noticeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-		noticeIntent.putExtra(EXTRA_ALARM_TITLE, alarm.title)
-		noticeIntent.putExtra(EXTRA_ALARM_MESSAGE, alarm.message)
-
-		val noticeId = alarm.id.toInt()
-		val pendingIntent = PendingIntent.getActivity(context, noticeId, noticeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-		val noticeBuilder = NotificationCompat.Builder(context)
-				.setSmallIcon(R.drawable.ic_alarm)
-				.setTicker(alarm.title)
-				.setContentTitle(alarm.title)
-				.setContentInfo(context.getString(R.string.app_name))
-				.setContentText(alarm.message)
-				.setContentIntent(pendingIntent)
-				.setPriority(NotificationManager.IMPORTANCE_HIGH)
-				.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
-				.setSound(alarm.sound)
-
-		if (alarm.withVibration)
-			noticeBuilder.setVibrate(defaultVibratePattern)
-
-		noticeManager.notify(noticeId, noticeBuilder.build())
-
 		sheduleNextAlarm(context, alarm)
+
+		Intent(context, NoticeActivity::class.java).apply {
+			flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+			putExtra(EXTRA_ALARM, alarm)
+			context.startActivity(this)
+		}
 	}
 
 	private fun sheduleNextAlarm(context: Context, alarm: Alarm) {
@@ -63,11 +45,10 @@ class AlarmReceiver: BroadcastReceiver() {
 	}
 
 	companion object {
+		const val EXTRA_ALARM = "alarm"
 		const val EXTRA_ALARM_BYTES = "alarm_message_bytes"
-		const val EXTRA_ALARM_TITLE = "alarm_title"
-		const val EXTRA_ALARM_MESSAGE = "alarm_message"
 
-		val defaultVibratePattern = longArrayOf(0, 250, 250, 250)
+		private const val alarmChannelName = "alarms"
 
 		fun resetAlarm(context: Context, alarm: Alarm) {
 			AlarmReceiver.cancelAlarm(context, alarm.id.toInt())
@@ -86,7 +67,22 @@ class AlarmReceiver: BroadcastReceiver() {
 				alarmManager.set(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
 			else
 				alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarm.date.time, pendingIntent)
+
+			val noticeManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+			noticeManager.notify(alarm.id.toInt(), createAlarmNotice(context, alarm))
 		}
+
+		private fun createAlarmNotice(context: Context, alarm: Alarm) =
+			NotificationCompat.Builder(context, alarmChannelName)
+					.setSmallIcon(R.drawable.ic_alarm)
+					.setTicker(alarm.title)
+					.setContentTitle(alarm.title)
+					.setContentInfo(context.getString(R.string.app_name))
+					.setContentText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(alarm.date))
+					.setPriority(NotificationManager.IMPORTANCE_HIGH)
+					.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
+					.setOngoing(true)
+					.build()
 
 		fun cancelAlarm(context: Context, alarmId: Int) {
 			val intent = Intent(context, AlarmReceiver::class.java)
