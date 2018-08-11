@@ -25,11 +25,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 
 	override fun getBindingVariable() = BR.viewModel
 
-	override fun createViewModel() : AlarmActivityViewModel {
-		return intent.getParcelableExtra<Alarm>(EXTRA_ALARM)
-				?.let { AlarmActivityViewModel(it, getPeriodTitle(it.activeDays)) }
-				?: AlarmActivityViewModel(getString(R.string.onetime))
-	}
+	override fun createViewModel() = AlarmActivityViewModel()
 
 	override fun getTitleId() = R.string.new_alarm
 
@@ -40,6 +36,23 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 
 		days = arrayOf(getString(R.string.monday), getString(R.string.tuesday), getString(R.string.wednesday),
 				getString(R.string.thursday), getString(R.string.friday), getString(R.string.saturday), getString(R.string.sunday))
+
+		initViewModel()
+	}
+
+	private fun initViewModel() {
+		intent.getParcelableExtra<Alarm>(EXTRA_ALARM)?.let {
+			viewModel.id = it.id
+			viewModel.titleField.set(it.title)
+			viewModel.messageField.set(it.message)
+			viewModel.vibroField.set(it.withVibration)
+			viewModel.setDate(it.date)
+			viewModel.setSound(it.sound, Utils.getRingtoneTitle(this, it.sound))
+			viewModel.setPeriod(it.activeDays, getPeriodTitle(it.activeDays))
+		}?:run {
+			viewModel.setDate(null)
+			viewModel.periodTitle.set(getString(R.string.onetime))
+		}
 
 		viewModel.choosePeriodEvent()
 				.takeUntil(destroyEvent)
@@ -63,10 +76,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 			INTENT_CHOOSE_SOUND -> {
 				if (resultCode == Activity.RESULT_OK) {
 					data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-							?.let {
-								val title = RingtoneManager.getRingtone(this, it)?.getTitle(this) ?: ""
-								viewModel.updateSound(title, it)
-							}
+							?.let { viewModel.setSound(it, Utils.getRingtoneTitle(this, it)) }
 				}
 			}
 			else -> super.onActivityResult(requestCode, resultCode, data)
@@ -108,7 +118,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 	}
 
 	private fun applyPeriod(period: BooleanArray) {
-		viewModel.updatePeriod(period, getPeriodTitle(period))
+		viewModel.setPeriod(period, getPeriodTitle(period))
 	}
 
 	private fun getPeriodTitle(period: BooleanArray) = when {

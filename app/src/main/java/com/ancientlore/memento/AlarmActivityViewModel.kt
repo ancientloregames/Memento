@@ -10,9 +10,9 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
 
-class AlarmActivityViewModel: ViewModel {
+class AlarmActivityViewModel: ViewModel() {
 
-	val id: Long
+	var id: Long = 0
 
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")
@@ -38,31 +38,12 @@ class AlarmActivityViewModel: ViewModel {
 
 	private val deleteAlarmEvent = PublishSubject.create<Long>()
 
-	constructor(periodTitle: String) {
-		id = 0
-
-		applyDate(null)
-
-		this.periodTitle.set(periodTitle)
-	}
-
-	constructor(alarm: Alarm, periodTitle: String) {
-		id = alarm.id
-		titleField.set(alarm.title)
-		messageField.set(alarm.message)
-		currentSound = alarm.sound
-
-		applyDate(alarm.date)
-
-		updatePeriod(alarm.activeDays, periodTitle)
-	}
-
-	fun updatePeriod(newPeriod: BooleanArray, periodTitle: String) {
+	fun setPeriod(newPeriod: BooleanArray, periodTitle: String) {
 		currentPeriod = newPeriod
 		this.periodTitle.set(periodTitle)
 	}
 
-	fun updateSound(title: String, sound: Uri) {
+	fun setSound(sound: Uri, title: String) {
 		currentSound = sound
 		this.soundField.set(title)
 	}
@@ -81,7 +62,7 @@ class AlarmActivityViewModel: ViewModel {
 			id, titleField.get()!!, messageField.get()!!, getDate(),
 			currentSound, currentPeriod, vibroField.get(), true)
 
-	private fun applyDate(date: Date?) {
+	fun setDate(date: Date?) {
 		val calendar = Calendar.getInstance()
 		date?.let { calendar.time = it }
 		hoursField.set(calendar.get(Calendar.HOUR_OF_DAY))
