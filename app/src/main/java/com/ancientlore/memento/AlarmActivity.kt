@@ -19,7 +19,8 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 		const val INTENT_CHOOSE_SOUND = 101
 	}
 
-	private lateinit var days: Array<String>
+	private val days by lazy { arrayOf(getString(R.string.monday), getString(R.string.tuesday), getString(R.string.wednesday),
+			getString(R.string.thursday), getString(R.string.friday), getString(R.string.saturday), getString(R.string.sunday)) }
 
 	override fun getLayoutId() = R.layout.activity_alarm
 
@@ -33,9 +34,6 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 		super.onCreate(savedInstanceState)
 
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-		days = arrayOf(getString(R.string.monday), getString(R.string.tuesday), getString(R.string.wednesday),
-				getString(R.string.thursday), getString(R.string.friday), getString(R.string.saturday), getString(R.string.sunday))
 
 		initViewModel()
 	}
