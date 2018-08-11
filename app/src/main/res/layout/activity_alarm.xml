@@ -126,7 +126,7 @@
 						android:id="@+id/period_value"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:text="@={viewModel.periodTitle}"
+						android:text="@={viewModel.periodField}"
 						android:textSize="18sp"
 						android:layout_margin="8dp"
 						android:layout_alignParentEnd="true"

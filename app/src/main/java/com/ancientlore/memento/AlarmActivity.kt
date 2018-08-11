@@ -49,7 +49,7 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 			viewModel.setPeriod(it.activeDays, getPeriodTitle(it.activeDays))
 		}?:run {
 			viewModel.setDate(null)
-			viewModel.periodTitle.set(getString(R.string.onetime))
+			viewModel.periodField.set(getString(R.string.onetime))
 		}
 
 		viewModel.choosePeriodEvent()

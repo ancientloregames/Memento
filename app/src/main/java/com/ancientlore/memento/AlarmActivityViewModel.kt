@@ -16,6 +16,7 @@ class AlarmActivityViewModel: ViewModel() {
 
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")
+	val periodField = ObservableField<String>("")
 	val soundField = ObservableField<String>("")
 	val vibroField = ObservableBoolean(true)
 
@@ -25,10 +26,8 @@ class AlarmActivityViewModel: ViewModel() {
 	val hoursField = ObservableInt(0)
 	val minutesField = ObservableInt(0)
 
-	val periodTitle = ObservableField<String>("")
-
-	private var currentPeriod = BooleanArray(7) { false }
-	private var currentSound = Settings.System.DEFAULT_ALARM_ALERT_URI
+	private var period = BooleanArray(7) { false }
+	private var soundUri = Settings.System.DEFAULT_ALARM_ALERT_URI
 
 	private val choosePeriodEvent = PublishSubject.create<BooleanArray>()
 
@@ -38,30 +37,6 @@ class AlarmActivityViewModel: ViewModel() {
 
 	private val deleteAlarmEvent = PublishSubject.create<Long>()
 
-	fun setPeriod(newPeriod: BooleanArray, periodTitle: String) {
-		currentPeriod = newPeriod
-		this.periodTitle.set(periodTitle)
-	}
-
-	fun setSound(sound: Uri, title: String) {
-		currentSound = sound
-		this.soundField.set(title)
-	}
-
-	fun onChoosePeriodClicked() { choosePeriodEvent.onNext(currentPeriod) }
-
-	fun onChooseSoundClicked() { chooseSoundEvent.onNext(currentSound) }
-
-	fun onSwitchVibroClicked() { vibroField.set(!vibroField.get()) }
-
-	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
-
-	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
-
-	private fun createAlarm() = Alarm(
-			id, titleField.get()!!, messageField.get()!!, getDate(),
-			currentSound, currentPeriod, vibroField.get(), true)
-
 	fun setDate(date: Date?) {
 		val calendar = Calendar.getInstance()
 		date?.let { calendar.time = it }
@@ -69,15 +44,39 @@ class AlarmActivityViewModel: ViewModel() {
 		minutesField.set(calendar.get(Calendar.MINUTE))
 	}
 
+	fun setPeriod(period: BooleanArray, title: String) {
+		this.period = period
+		periodField.set(title)
+	}
+
+	fun setSound(uri: Uri, title: String) {
+		soundUri = uri
+		soundField.set(title)
+	}
+
+	private fun createAlarm() = Alarm(
+			id, titleField.get()!!, messageField.get()!!, getDate(),
+			soundUri, period, vibroField.get(), true)
+
 	private fun getDate(): Date {
 		val calendar = Calendar.getInstance().apply {
-			val dayDelay = Alarm.getDaysToIncrement(get(Calendar.DAY_OF_WEEK), currentPeriod)
+			val dayDelay = Alarm.getDaysToIncrement(get(Calendar.DAY_OF_WEEK), period)
 			add(Calendar.DAY_OF_MONTH, dayDelay)
 			set(Calendar.HOUR_OF_DAY, hoursField.get())
 			set(Calendar.MINUTE, minutesField.get())
 		}
 		return calendar.time
 	}
+
+	fun onChoosePeriodClicked() { choosePeriodEvent.onNext(period) }
+
+	fun onChooseSoundClicked() { chooseSoundEvent.onNext(soundUri) }
+
+	fun onSwitchVibroClicked() { vibroField.set(!vibroField.get()) }
+
+	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
+
+	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
 
 	fun choosePeriodEvent() = choosePeriodEvent as Observable<BooleanArray>
 
