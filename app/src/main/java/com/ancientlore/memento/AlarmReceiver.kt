@@ -82,7 +82,16 @@ class AlarmReceiver: BroadcastReceiver() {
 					.setPriority(NotificationManager.IMPORTANCE_HIGH)
 					.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
 					.setOngoing(true)
+					.addAction(R.drawable.ic_cancel, context.getString(R.string.cancel), createCancelPendingIntent(context, alarm.id.toInt()))
 					.build()
+
+		private fun createCancelPendingIntent(context: Context, alarmId: Int): PendingIntent {
+			val intent = Intent(context, ActionReceiver::class.java).apply {
+				action = ActionReceiver.ACTION_CANCEL_ALARM
+				putExtra(ActionReceiver.EXTRA_ALARM_ID, alarmId)
+			}
+			return PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+		}
 
 		fun cancelAlarm(context: Context, alarmId: Int) {
 			val intent = Intent(context, AlarmReceiver::class.java)

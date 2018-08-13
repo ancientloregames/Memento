@@ -24,6 +24,13 @@
 				  android:label="@string/app_name"/>
 
 		<receiver android:name=".AlarmReceiver" />
+
+		<receiver android:name=".ActionReceiver"
+				  android:exported="false">
+			<intent-filter>
+				<action android:name="com.ancientlore.memento.action.CANCEL_ALARM"/>
+			</intent-filter>
+		</receiver>
 	</application>
 
 </manifest>

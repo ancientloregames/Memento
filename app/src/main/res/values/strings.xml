@@ -6,6 +6,7 @@
 	<string name="title">Title</string>
 	<string name="message">Message</string>
 	<string name="dismiss">Dismiss</string>
+	<string name="cancel">Cancel</string>
 	<string name="delete">Delete</string>
 	<string name="done">Done</string>
 	<string name="period">Period</string>
