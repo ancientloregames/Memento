@@ -75,8 +75,8 @@ class AlarmReceiver: BroadcastReceiver() {
 		private fun createAlarmNotice(context: Context, alarm: Alarm) =
 			NotificationCompat.Builder(context, alarmChannelName)
 					.setSmallIcon(R.drawable.ic_alarm)
-					.setTicker(alarm.title)
-					.setContentTitle(alarm.title)
+					.setTicker(composeAlarmTitle(context, alarm))
+					.setContentTitle(composeAlarmTitle(context, alarm))
 					.setContentInfo(context.getString(R.string.app_name))
 					.setContentText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(alarm.date))
 					.setPriority(NotificationManager.IMPORTANCE_HIGH)
@@ -84,6 +84,10 @@ class AlarmReceiver: BroadcastReceiver() {
 					.setOngoing(true)
 					.addAction(R.drawable.ic_cancel, context.getString(R.string.cancel), createCancelPendingIntent(context, alarm.id.toInt()))
 					.build()
+
+		private fun composeAlarmTitle(context: Context, alarm: Alarm) : String {
+			return if (alarm.title.isNotEmpty()) alarm.title else context.getString(R.string.alarm) + ' ' + alarm.id
+		}
 
 		private fun createCancelPendingIntent(context: Context, alarmId: Int): PendingIntent {
 			val intent = Intent(context, ActionReceiver::class.java).apply {
