@@ -9,10 +9,10 @@ interface AlarmDao {
 	fun getAll(): List<Alarm>
 
 	@Query("SELECT * FROM alarms WHERE id IN (:ids)")
-	fun loadAllByIds(ids: IntArray): List<Alarm>
+	fun loadAllByIds(ids: LongArray): List<Alarm>
 
 	@Query("SELECT * FROM alarms WHERE id LIKE :first")
-	fun findById(first: String): Alarm
+	fun findById(first: Long): Alarm
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	fun insert(vararg word: Alarm)
