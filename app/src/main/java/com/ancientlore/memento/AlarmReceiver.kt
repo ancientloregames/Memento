@@ -10,6 +10,8 @@ import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import com.ancientlore.memento.extensions.marshall
+import com.ancientlore.memento.extensions.unmarshall
 import java.text.DateFormat
 import java.util.*
 
