@@ -25,4 +25,7 @@ interface AlarmDao {
 
 	@Delete
 	fun delete(word: Alarm)
+
+	@Query("DELETE FROM alarms WHERE id = :id")
+	fun deleteById(id: Long)
 }

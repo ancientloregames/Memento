@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import java.util.concurrent.Executors
 
 class ActionReceiver: BroadcastReceiver() {
 	companion object {
@@ -15,9 +16,10 @@ class ActionReceiver: BroadcastReceiver() {
 	}
 
 	override fun onReceive(context: Context, intent: Intent) {
-		intent.getIntExtra(EXTRA_ALARM_ID, -1).takeIf { it != -1 }?.let {
-			cancelAlarm(context, it)
-			deleteNotice(context, it)
+		intent.getLongExtra(EXTRA_ALARM_ID, -1).takeIf { it != -1L }?.let {
+			cancelAlarm(context, it.toInt())
+			deleteAlarmFormDb(context, it)
+			deleteNotice(context, it.toInt())
 		}
 	}
 
@@ -32,5 +34,11 @@ class ActionReceiver: BroadcastReceiver() {
 	private fun deleteNotice(context: Context, alarmId: Int) {
 		val noticeManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 		noticeManager.cancel(alarmId)
+	}
+
+	private fun deleteAlarmFormDb(context: Context, alarmId: Long) {
+		Executors.newSingleThreadExecutor().submit {
+			AlarmsDatabase.getInstance(context).alarmDao().deleteById(alarmId)
+		}
 	}
 }

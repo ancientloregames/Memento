@@ -3,6 +3,7 @@ package com.ancientlore.memento
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.support.annotation.WorkerThread
 import android.support.v7.widget.LinearLayoutManager
 import com.ancientlore.memento.AlarmActivity.Companion.EXTRA_ALARM
 import com.ancientlore.memento.databinding.ActivityMainBinding
@@ -71,10 +72,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	override fun getTitleId() = R.string.app_name
 
 	private fun addAlarm(alarm: Alarm) {
-		AlarmReceiver.scheduleAlarm(this, alarm)
+		dbExec.submit {
+			alarm.id = addAlarmToDb(alarm)
+			AlarmReceiver.scheduleAlarm(this, alarm)
 
-		addAlarmToDb(alarm)
-		runOnUiThread { listAdapter.addItem(alarm) }
+			runOnUiThread { listAdapter.addItem(alarm) }
+		}
 	}
 
 	private fun updateAlarm(alarm: Alarm) {
@@ -91,9 +94,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 		runOnUiThread { listAdapter.deleteItem(alarm) }
 	}
 
-	private fun addAlarmToDb(alarm: Alarm) {
-		dbExec.submit { db.alarmDao().insert(alarm) }
-	}
+	@WorkerThread
+	private fun addAlarmToDb(alarm: Alarm) = db.alarmDao().insert(alarm)
 
 	private fun updateAlarmInDb(alarm: Alarm) {
 		dbExec.submit { db.alarmDao().update(alarm) }
