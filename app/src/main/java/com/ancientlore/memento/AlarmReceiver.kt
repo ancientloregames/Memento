@@ -28,22 +28,6 @@ class AlarmReceiver: BroadcastReceiver() {
 		}
 	}
 
-	private fun sheduleNextAlarm(context: Context, alarm: Alarm) {
-		val calendar = Calendar.getInstance()
-		val currentDay = calendar.get(Calendar.DAY_OF_WEEK)
-		Alarm.getDaysToIncrement(currentDay, alarm.activeDays).takeIf { it != 0 }
-				?.let { increment ->
-					val nextCalendar = Calendar.getInstance()
-					nextCalendar.timeInMillis = alarm.date.time
-					nextCalendar.add(Calendar.DAY_OF_MONTH, increment)
-					val nextAlarm = Alarm(alarm)
-					nextAlarm.date = nextCalendar.time
-					Log.i("AlarmReceiver", "delay: " + (nextCalendar.time.time - alarm.date.time))
-
-					scheduleAlarm(context, nextAlarm)
-				}
-	}
-
 	companion object {
 		const val EXTRA_ALARM = "alarm"
 		const val EXTRA_ALARM_BYTES = "alarm_message_bytes"
@@ -72,6 +56,22 @@ class AlarmReceiver: BroadcastReceiver() {
 			noticeManager.notify(alarm.id.toInt(), createAlarmNotice(context, alarm))
 		}
 
+		fun sheduleNextAlarm(context: Context, alarm: Alarm) {
+			val calendar = Calendar.getInstance()
+			val currentDay = calendar.get(Calendar.DAY_OF_WEEK)
+			Alarm.getDaysToIncrement(currentDay, alarm.activeDays).takeIf { it != 0 }
+					?.let { increment ->
+						val nextCalendar = Calendar.getInstance()
+						nextCalendar.timeInMillis = alarm.date.time
+						nextCalendar.add(Calendar.DAY_OF_MONTH, increment)
+						val nextAlarm = Alarm(alarm)
+						nextAlarm.date = nextCalendar.time
+						Log.i("AlarmReceiver", "delay: " + (nextCalendar.time.time - alarm.date.time))
+
+						scheduleAlarm(context, nextAlarm)
+					}
+		}
+
 		private fun createAlarmNotice(context: Context, alarm: Alarm) =
 			NotificationCompat.Builder(context, alarmChannelName)
 					.setSmallIcon(R.drawable.ic_alarm)
@@ -83,6 +83,7 @@ class AlarmReceiver: BroadcastReceiver() {
 					.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
 					.setOngoing(true)
 					.addAction(R.drawable.ic_cancel, context.getString(R.string.cancel), createCancelPendingIntent(context, alarm.id))
+					.addAction(R.drawable.ic_skip_arrow, context.getString(R.string.skip), createSkipPendingIntent(context, alarm))
 					.build()
 
 		private fun composeAlarmTitle(context: Context, alarm: Alarm): String {
@@ -97,10 +98,17 @@ class AlarmReceiver: BroadcastReceiver() {
 			return PendingIntent.getBroadcast(context, alarmId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
 		}
 
+		private fun createSkipPendingIntent(context: Context, alarm: Alarm): PendingIntent {
+			val intent = Intent(context, ActionReceiver::class.java).apply {
+				action = ActionReceiver.ACTION_SKIP_ALARM
+				putExtra(ActionReceiver.EXTRA_ALARM, alarm)
+			}
+			return PendingIntent.getBroadcast(context, alarm.id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+		}
+
 		fun cancelAlarm(context: Context, alarmId: Int) {
 			val intent = Intent(context, AlarmReceiver::class.java)
-			val pendingIntent =
-					PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+			val pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
 			val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 			alarmManager.cancel(pendingIntent)
