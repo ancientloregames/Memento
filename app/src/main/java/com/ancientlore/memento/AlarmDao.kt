@@ -12,13 +12,13 @@ interface AlarmDao {
 	fun loadAllByIds(ids: LongArray): List<Alarm>
 
 	@Query("SELECT * FROM alarms WHERE id LIKE :first")
-	fun findById(first: Long): Alarm
+	fun findById(first: Long): Alarm?
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	fun insert(vararg word: Alarm)
+	fun insert(word: Alarm): Long
 
-	@Insert
-	fun insertAll(vararg word: Alarm)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	fun insert(word: List<Alarm>): LongArray
 
 	@Update
 	fun update(vararg word: Alarm)
