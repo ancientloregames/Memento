@@ -8,11 +8,16 @@ import com.ancientlore.memento.extensions.unmarshall
 class AlarmReceiver: BroadcastReceiver() {
 
 	override fun onReceive(context: Context, intent: Intent) {
+		intent.getByteArrayExtra(EXTRA_ALARM_BYTES)?.run {
+			val alarm = unmarshall(Alarm.CREATOR)
 
-		val alarm = intent.getByteArrayExtra(EXTRA_ALARM_BYTES).run { unmarshall(Alarm.CREATOR) }
+			alarm.sheduleNextAlarm(context)
 
-		alarm.sheduleNextAlarm(context)
+			showNoticeActivity(context, alarm)
+		}
+	}
 
+	private fun showNoticeActivity(context: Context, alarm: Alarm) {
 		Intent(context, NoticeActivity::class.java).run {
 			flags = Intent.FLAG_ACTIVITY_NEW_TASK
 			putExtra(EXTRA_ALARM, alarm)
