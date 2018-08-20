@@ -67,6 +67,33 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 
 	override fun describeContents() = 0
 
+	override fun equals(other: Any?): Boolean {
+		if (this !== other && other is Alarm) {
+			if (id != other.id) return false
+			if (title != other.title) return false
+			if (message != other.message) return false
+			if (date != other.date) return false
+			if (sound != other.sound) return false
+			if (!Arrays.equals(activeDays, other.activeDays)) return false
+			if (withVibration != other.withVibration) return false
+			if (enabled != other.enabled) return false
+		}
+
+		return true
+	}
+
+	override fun hashCode(): Int {
+		var result = id.hashCode()
+		result = 31 * result + title.hashCode()
+		result = 31 * result + message.hashCode()
+		result = 31 * result + date.hashCode()
+		result = 31 * result + sound.hashCode()
+		result = 31 * result + Arrays.hashCode(activeDays)
+		result = 31 * result + withVibration.hashCode()
+		result = 31 * result + enabled.hashCode()
+		return result
+	}
+
 	fun schedule(context: Context) {
 		cancel(context)
 
