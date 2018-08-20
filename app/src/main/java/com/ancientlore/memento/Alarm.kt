@@ -1,15 +1,26 @@
 package com.ancientlore.memento
 
+import android.app.AlarmManager
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import android.provider.Settings
 import android.support.annotation.IntDef
+import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
+import android.util.Log
+import com.ancientlore.memento.extensions.marshall
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
+import java.text.DateFormat
 import java.util.*
 
 @Entity(tableName = "alarms")
@@ -54,8 +65,84 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 		parcel.writeInt(if (enabled) 1 else 0)
 	}
 
-
 	override fun describeContents() = 0
+
+	fun schedule(context: Context) {
+		cancel(context)
+
+		if (enabled) scheduleInternal(context)
+	}
+
+	private fun scheduleInternal(context: Context) {
+		val intent = Intent(context, AlarmReceiver::class.java)
+		// Can't pass Parcelable directly on API 24+ due to https://issuetracker.google.com/issues/37097877
+		intent.putExtra(AlarmReceiver.EXTRA_ALARM_BYTES, marshall())
+		val pendingIntent = PendingIntent.getBroadcast(context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+		val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+			alarmManager.set(AlarmManager.RTC_WAKEUP, date.time, pendingIntent)
+		else
+			alarmManager.setExact(AlarmManager.RTC_WAKEUP, date.time, pendingIntent)
+
+		val noticeManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+		noticeManager.notify(id.toInt(), createAlarmNotice(context))
+	}
+
+	fun sheduleNextAlarm(context: Context) {
+		val calendar = Calendar.getInstance()
+		val currentDay = calendar.get(Calendar.DAY_OF_WEEK)
+		Alarm.getDaysToIncrement(currentDay, activeDays).takeIf { it != 0 }
+				?.let { increment ->
+					val nextCalendar = Calendar.getInstance()
+					nextCalendar.timeInMillis = date.time
+					nextCalendar.add(Calendar.DAY_OF_MONTH, increment)
+					val nextAlarm = Alarm(this)
+					nextAlarm.date = nextCalendar.time
+					Log.i("AlarmReceiver", "delay: " + (nextCalendar.time.time - date.time))
+
+					schedule(context)
+				}
+	}
+
+	fun cancel(context: Context) {
+		val intent = Intent(context, AlarmReceiver::class.java)
+		val pendingIntent = PendingIntent.getBroadcast(context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+		(context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+				.apply { cancel(pendingIntent) }
+	}
+
+	private fun createAlarmNotice(context: Context) =
+			NotificationCompat.Builder(context, AlarmReceiver.alarmChannelName)
+					.setSmallIcon(R.drawable.ic_alarm)
+					.setTicker(composeAlarmTitle(context))
+					.setContentTitle(composeAlarmTitle(context))
+					.setContentInfo(context.getString(R.string.app_name))
+					.setContentText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date))
+					.setPriority(NotificationManager.IMPORTANCE_HIGH)
+					.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
+					.setOngoing(true)
+					.addAction(R.drawable.ic_cancel, context.getString(R.string.cancel), createCancelPendingIntent(context))
+					.addAction(R.drawable.ic_skip_arrow, context.getString(R.string.skip), createSkipPendingIntent(context))
+					.build()
+
+	private fun composeAlarmTitle(context: Context) =
+		if (title.isNotEmpty()) title else context.getString(R.string.alarm) + ' ' + id
+
+	private fun createCancelPendingIntent(context: Context): PendingIntent {
+		val intent = Intent(context, ActionReceiver::class.java)
+		intent.action = ActionReceiver.ACTION_CANCEL_ALARM
+		intent.putExtra(ActionReceiver.EXTRA_ALARM, Alarm@this)
+		return PendingIntent.getBroadcast(context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+	}
+
+	private fun createSkipPendingIntent(context: Context): PendingIntent {
+		val intent = Intent(context, ActionReceiver::class.java)
+		intent.action = ActionReceiver.ACTION_SKIP_ALARM
+		intent.putExtra(ActionReceiver.EXTRA_ALARM, Alarm@this)
+		return PendingIntent.getBroadcast(context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+	}
 
 	companion object CREATOR : Parcelable.Creator<Alarm> {
 

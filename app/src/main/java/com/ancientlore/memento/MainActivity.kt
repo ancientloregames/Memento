@@ -74,21 +74,23 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>() 
 	private fun addAlarm(alarm: Alarm) {
 		dbExec.submit {
 			alarm.id = addAlarmToDb(alarm)
-			AlarmReceiver.scheduleAlarm(this, alarm)
+			alarm.schedule(this)
 
-			runOnUiThread { listAdapter.addItem(alarm) }
+			runOnUiThread {
+				listAdapter.addItem(alarm)
+			}
 		}
 	}
 
 	private fun updateAlarm(alarm: Alarm) {
-		AlarmReceiver.resetAlarm(this, alarm)
+		alarm.schedule(this)
 
 		updateAlarmInDb(alarm)
 		runOnUiThread { listAdapter.updateItem(alarm) }
 	}
 
 	private fun deleteAlarm(alarm: Alarm) {
-		AlarmReceiver.cancelAlarm(this, alarm.id.toInt())
+		alarm.cancel(this)
 
 		deleteAlarmInDb(alarm)
 		runOnUiThread { listAdapter.deleteItem(alarm) }
