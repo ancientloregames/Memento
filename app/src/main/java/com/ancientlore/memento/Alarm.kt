@@ -21,6 +21,7 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.ancientlore.memento.extensions.createChannel
 import com.ancientlore.memento.extensions.marshall
+import com.ancientlore.memento.extensions.schedule
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.text.DateFormat
@@ -107,16 +108,13 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 		val intent = Intent(context, AlarmReceiver::class.java)
 		// Can't pass Parcelable directly on API 24+ due to https://issuetracker.google.com/issues/37097877
 		intent.putExtra(AlarmReceiver.EXTRA_ALARM_BYTES, marshall())
-		val pendingIntent = PendingIntent.getBroadcast(context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+		val operation = PendingIntent.getBroadcast(context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-		val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-			alarmManager.set(AlarmManager.RTC_WAKEUP, date.time, pendingIntent)
-		else
-			alarmManager.setExact(AlarmManager.RTC_WAKEUP, date.time, pendingIntent)
+		(context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+				.schedule(AlarmManager.RTC_WAKEUP, date.time, operation)
 
-		val noticeManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-		noticeManager.notify(id.toInt(), createAlarmNotice(context))
+		(context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+				.notify(id.toInt(), createAlarmNotice(context))
 	}
 
 	fun sheduleNextAlarm(context: Context) {
