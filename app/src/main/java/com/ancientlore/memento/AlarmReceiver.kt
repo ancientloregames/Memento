@@ -29,6 +29,6 @@ class AlarmReceiver: BroadcastReceiver() {
 		const val EXTRA_ALARM = "alarm"
 		const val EXTRA_ALARM_BYTES = "alarm_message_bytes"
 
-		const val alarmChannelName = "alarms"
+		const val alarmChannelId = "alarms"
 	}
 }

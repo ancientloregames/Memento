@@ -4,6 +4,7 @@
 	<string name="new_alarm">New Alarm</string>
 
 	<string name="alarm">Alarm</string>
+	<string name="alarms">Alarms</string>
 	<string name="title">Title</string>
 	<string name="message">Message</string>
 	<string name="dismiss">Dismiss</string>

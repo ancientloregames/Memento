@@ -1,6 +1,7 @@
 package com.ancientlore.memento
 
 import android.app.AlarmManager
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.arch.persistence.room.ColumnInfo
@@ -14,9 +15,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.provider.Settings
 import android.support.annotation.IntDef
+import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import com.ancientlore.memento.extensions.createChannel
 import com.ancientlore.memento.extensions.marshall
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
@@ -140,22 +143,36 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 				.apply { cancel(pendingIntent) }
 	}
 
-	private fun createAlarmNotice(context: Context) =
-			NotificationCompat.Builder(context, AlarmReceiver.alarmChannelName)
-					.setSmallIcon(R.drawable.ic_alarm)
-					.setTicker(composeAlarmTitle(context))
-					.setContentTitle(composeAlarmTitle(context))
-					.setContentInfo(context.getString(R.string.app_name))
-					.setContentText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date))
-					.setPriority(NotificationManager.IMPORTANCE_HIGH)
-					.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
-					.setOngoing(true)
-					.addAction(R.drawable.ic_cancel, context.getString(R.string.cancel), createCancelPendingIntent(context))
-					.addAction(R.drawable.ic_skip_arrow, context.getString(R.string.skip), createSkipPendingIntent(context))
-					.build()
+	private fun createAlarmNotice(context: Context) = getNotificationBuilder(context)
+			.setSmallIcon(R.drawable.ic_alarm)
+			.setTicker(composeAlarmTitle(context))
+			.setContentTitle(composeAlarmTitle(context))
+			.setContentInfo(context.getString(R.string.app_name))
+			.setContentText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date))
+			.setPriority(NotificationManager.IMPORTANCE_HIGH)
+			.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
+			.addAction(R.drawable.ic_cancel, context.getString(R.string.cancel), createCancelPendingIntent(context))
+			.addAction(R.drawable.ic_skip_arrow, context.getString(R.string.skip), createSkipPendingIntent(context))
+			.setOngoing(true)
+			.build()
 
-	private fun composeAlarmTitle(context: Context) =
-		if (title.isNotEmpty()) title else context.getString(R.string.alarm) + ' ' + id
+	private fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
+		return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+			NotificationCompat.Builder(context, getAlarmChannel(context).id)
+		else NotificationCompat.Builder(context, AlarmReceiver.alarmChannelId)
+	}
+
+	@RequiresApi(Build.VERSION_CODES.O)
+	private fun getAlarmChannel(context: Context): NotificationChannel {
+		if (alarmChannel == null) {
+			val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+			alarmChannel = notificationManager.getNotificationChannel(AlarmReceiver.alarmChannelId)
+					?: notificationManager.createChannel(AlarmReceiver.alarmChannelId, context.getString(R.string.alarms), NotificationManager.IMPORTANCE_HIGH)
+		}
+		return alarmChannel!!
+	}
+
+	private fun composeAlarmTitle(context: Context) = if (title.isNotEmpty()) title else context.getString(R.string.alarm) + ' ' + id
 
 	private fun createCancelPendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, ActionReceiver::class.java)
@@ -172,6 +189,8 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 	}
 
 	companion object CREATOR : Parcelable.Creator<Alarm> {
+
+		var alarmChannel: NotificationChannel? = null
 
 		override fun createFromParcel(parcel: Parcel) = Alarm(parcel)
 
