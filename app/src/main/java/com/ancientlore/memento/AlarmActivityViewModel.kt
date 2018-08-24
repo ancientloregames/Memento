@@ -56,7 +56,7 @@ class AlarmActivityViewModel: ViewModel() {
 
 	private fun createAlarm() = Alarm(
 			id, titleField.get()!!, messageField.get()!!, getDate(),
-			soundUri, period, vibroField.get(), true)
+			0, soundUri, period, vibroField.get(), true)
 
 	private fun getDate(): Date {
 		val calendar = Calendar.getInstance().apply {

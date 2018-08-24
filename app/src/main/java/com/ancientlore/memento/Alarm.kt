@@ -32,6 +32,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 				 @field:ColumnInfo var title: String = "",
 				 @field:ColumnInfo var message: String = "",
 				 @field:ColumnInfo var date: Date = Date(),
+				 @field:ColumnInfo var snooze: Int = 0,
 				 @field:ColumnInfo var sound: Uri = Settings.System.DEFAULT_ALARM_ALERT_URI,
 				 @field:ColumnInfo var activeDays: BooleanArray,
 				 @field:ColumnInfo var withVibration: Boolean,
@@ -42,6 +43,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 			parcel.readString(),
 			parcel.readString(),
 			Date(parcel.readLong()),
+			parcel.readInt(),
 			parcel.readParcelable<Uri>(Uri::class.java.classLoader),
 			parcel.createBooleanArray(),
 			parcel.readInt() != 0,
@@ -52,6 +54,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 			templateAlarm.title + "",
 			templateAlarm.message + "",
 			Date(templateAlarm.date.time),
+			templateAlarm.snooze,
 			templateAlarm.sound,
 			templateAlarm.activeDays.copyOf(),
 			templateAlarm.withVibration,
@@ -63,6 +66,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 		parcel.writeString(title)
 		parcel.writeString(message)
 		parcel.writeLong(date.time)
+		parcel.writeInt(snooze)
 		parcel.writeParcelable(sound, flags)
 		parcel.writeBooleanArray(activeDays)
 		parcel.writeInt(if (withVibration) 1 else 0)
@@ -77,6 +81,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 			if (title != other.title) return false
 			if (message != other.message) return false
 			if (date != other.date) return false
+			if (snooze != other.snooze) return false
 			if (sound != other.sound) return false
 			if (!Arrays.equals(activeDays, other.activeDays)) return false
 			if (withVibration != other.withVibration) return false
@@ -91,6 +96,7 @@ data class Alarm(@PrimaryKey(autoGenerate = true) var id: Long = 0,
 		result = 31 * result + title.hashCode()
 		result = 31 * result + message.hashCode()
 		result = 31 * result + date.hashCode()
+		result = 31 * result + snooze.hashCode()
 		result = 31 * result + sound.hashCode()
 		result = 31 * result + Arrays.hashCode(activeDays)
 		result = 31 * result + withVibration.hashCode()
