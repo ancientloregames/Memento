@@ -16,6 +16,7 @@ class AlarmActivityViewModel: ViewModel() {
 
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")
+	val snoozeField = ObservableField<String>("")
 	val periodField = ObservableField<String>("")
 	val soundField = ObservableField<String>("")
 	val vibroField = ObservableBoolean(true)
@@ -26,15 +27,14 @@ class AlarmActivityViewModel: ViewModel() {
 	val hoursField = ObservableInt(0)
 	val minutesField = ObservableInt(0)
 
+	private var snooze = 0
 	private var period = BooleanArray(7) { false }
 	private var soundUri = Settings.System.DEFAULT_ALARM_ALERT_URI
 
+	private val chooseSnoozeEvent = PublishSubject.create<Int>()
 	private val choosePeriodEvent = PublishSubject.create<BooleanArray>()
-
 	private val chooseSoundEvent = PublishSubject.create<Uri>()
-
 	private val submitAlarmEvent = PublishSubject.create<Alarm>()
-
 	private val deleteAlarmEvent = PublishSubject.create<Long>()
 
 	fun setDate(date: Date?) {
@@ -42,6 +42,11 @@ class AlarmActivityViewModel: ViewModel() {
 		date?.let { calendar.time = it }
 		hoursField.set(calendar.get(Calendar.HOUR_OF_DAY))
 		minutesField.set(calendar.get(Calendar.MINUTE))
+	}
+
+	fun setSnooze(snoozeLength: Int, title: String) {
+		snooze = snoozeLength
+		snoozeField.set(title)
 	}
 
 	fun setPeriod(period: BooleanArray, title: String) {
@@ -56,7 +61,7 @@ class AlarmActivityViewModel: ViewModel() {
 
 	private fun createAlarm() = Alarm(
 			id, titleField.get()!!, messageField.get()!!, getDate(),
-			0, soundUri, period, vibroField.get(), true)
+			snooze, soundUri, period, vibroField.get(), true)
 
 	private fun getDate(): Date {
 		val calendar = Calendar.getInstance().apply {
@@ -68,6 +73,8 @@ class AlarmActivityViewModel: ViewModel() {
 		return calendar.time
 	}
 
+	fun onChooseSnoozeClicked() { chooseSnoozeEvent.onNext(snooze) }
+
 	fun onChoosePeriodClicked() { choosePeriodEvent.onNext(period) }
 
 	fun onChooseSoundClicked() { chooseSoundEvent.onNext(soundUri) }
@@ -77,6 +84,8 @@ class AlarmActivityViewModel: ViewModel() {
 	fun onSubmitClicked() { submitAlarmEvent.onNext(createAlarm()) }
 
 	fun onDeleteClicked() { deleteAlarmEvent.onNext(id) }
+
+	fun chooseSnoozeEvent() = chooseSnoozeEvent as Observable<Int>
 
 	fun choosePeriodEvent() = choosePeriodEvent as Observable<BooleanArray>
 

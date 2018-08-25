@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.NumberPicker
 import com.ancientlore.memento.databinding.ActivityAlarmBinding
 
 class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>() {
@@ -45,12 +46,18 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 			viewModel.messageField.set(it.message)
 			viewModel.vibroField.set(it.withVibration)
 			viewModel.setDate(it.date)
-			viewModel.setSound(it.sound, Utils.getRingtoneTitle(this, it.sound))
+			viewModel.setSnooze(it.snooze, getSnoozeTitle(it.snooze))
 			viewModel.setPeriod(it.activeDays, getPeriodTitle(it.activeDays))
+			viewModel.setSound(it.sound, Utils.getRingtoneTitle(this, it.sound))
 		}?:run {
 			viewModel.setDate(null)
+			viewModel.setSnooze(0, getString(R.string.none))
 			viewModel.periodField.set(getString(R.string.onetime))
 		}
+
+		viewModel.chooseSnoozeEvent()
+				.takeUntil(destroyEvent)
+				.subscribe { choozeSnooze(it) }
 
 		viewModel.choosePeriodEvent()
 				.takeUntil(destroyEvent)
@@ -94,16 +101,6 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 		return true
 	}
 
-	private fun choosePeriod(prevChoice: BooleanArray) {
-		val currentChoice = prevChoice.clone()
-
-		AlertDialog.Builder(this)
-				.setMultiChoiceItems(days, currentChoice) { _, which, isChecked -> currentChoice[which] = isChecked }
-				.setPositiveButton(getString(R.string.done)) { _, _ ->  applyPeriod(currentChoice) }
-				.create()
-				.show()
-	}
-
 	private fun chooseSound(currentRingtone: Uri) {
 		Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
 				.apply {
@@ -113,6 +110,38 @@ class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>(
 					putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentRingtone)
 				}
 				.run { startActivityForResult(this, INTENT_CHOOSE_SOUND) }
+	}
+
+	private fun choozeSnooze(currentValue: Int) {
+		val picker = NumberPicker(this)
+		picker.minValue = 0
+		picker.maxValue = 60
+		picker.value = currentValue
+
+		AlertDialog.Builder(this)
+				.setView(picker)
+				.setPositiveButton(getString(R.string.done)) { _, _ -> applySnooze(picker.value) }
+				.create()
+				.show()
+	}
+
+	private fun applySnooze(snooze: Int) {
+		viewModel.setSnooze(snooze, getSnoozeTitle(snooze))
+	}
+
+	private fun getSnoozeTitle(snooze: Int) = when (snooze) {
+		0 -> getString(R.string.none)
+		else -> getString(R.string.time_minutes, snooze)
+	}
+
+	private fun choosePeriod(prevChoice: BooleanArray) {
+		val currentChoice = prevChoice.clone()
+
+		AlertDialog.Builder(this)
+				.setMultiChoiceItems(days, currentChoice) { _, which, isChecked -> currentChoice[which] = isChecked }
+				.setPositiveButton(getString(R.string.done)) { _, _ ->  applyPeriod(currentChoice) }
+				.create()
+				.show()
 	}
 
 	private fun applyPeriod(period: BooleanArray) {
