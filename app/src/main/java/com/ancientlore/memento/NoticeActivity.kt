@@ -41,9 +41,13 @@ class NoticeActivity: BaseActivity<ActivityNoticeBinding, NoticeActivityViewMode
 		viewModel.titleField.set(alarm.title)
 		viewModel.messageField.set(alarm.message)
 
-		viewModel.dismissAlarmEvent()
+		viewModel.onDismiss()
 				.take(1)
 				.subscribe { finish() }
+
+		viewModel.onSnooze()
+				.take(1)
+				.subscribe { snooze(alarm) }
 	}
 
 	private fun playSound(uri: Uri) {
@@ -64,5 +68,8 @@ class NoticeActivity: BaseActivity<ActivityNoticeBinding, NoticeActivityViewMode
 		ringtone?.stop()
 		vibrator?.cancel()
 		super.finish()
+	}
+
+	private fun snooze(originalAlarm: Alarm) {
 	}
 }

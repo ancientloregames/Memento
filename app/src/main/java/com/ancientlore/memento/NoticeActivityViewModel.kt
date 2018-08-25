@@ -10,9 +10,14 @@ class NoticeActivityViewModel: ViewModel() {
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")
 
-	private val dismissAlarmEvent = PublishSubject.create<Any>()
+	private val dismissEvent = PublishSubject.create<Any>()
+	private val snoozeEvent = PublishSubject.create<Any>()
 
-	fun onDismissClicked() { dismissAlarmEvent.onNext(Any()) }
+	fun onDismissClicked() { dismissEvent.onNext(Any()) }
 
-	fun dismissAlarmEvent() = dismissAlarmEvent as Observable<Any>
+	fun onSnoozeClicked() { snoozeEvent.onNext(Any()) }
+
+	fun onDismiss() = dismissEvent as Observable<Any>
+
+	fun onSnooze() = snoozeEvent as Observable<Any>
 }
