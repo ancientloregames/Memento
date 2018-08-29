@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import com.ancientlore.memento.databinding.ActivityNoticeBinding
+import java.util.*
 
 class NoticeActivity: BaseActivity<ActivityNoticeBinding, NoticeActivityViewModel>() {
 
@@ -70,6 +71,16 @@ class NoticeActivity: BaseActivity<ActivityNoticeBinding, NoticeActivityViewMode
 		super.finish()
 	}
 
-	private fun snooze(originalAlarm: Alarm) {
+	private fun snooze(alarm: Alarm) {
+		Alarm(alarm).apply {
+			date = getSnoozedDate(alarm.date, alarm.snooze)
+			schedule(applicationContext)
+		}
 	}
+
+	private fun getSnoozedDate(date: Date, snooze: Int) =
+			Calendar.getInstance().apply {
+				time = date
+				add(Calendar.MINUTE, snooze)
+			}.time
 }
