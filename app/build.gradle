@@ -49,8 +49,6 @@ dependencies {
     implementation "android.arch.persistence.room:rxjava2:$ROOM_VERSION"
     kapt "android.arch.persistence.room:compiler:$ROOM_VERSION"
 
-    implementation 'com.shawnlin:number-picker:2.4.6'
-
     testImplementation "android.arch.persistence.room:testing:$ROOM_VERSION"
 
     testImplementation 'junit:junit:4.12'
