@@ -1,4 +1,4 @@
-package com.ancientlore.memento
+package com.ancientlore.memento.database
 
 import android.arch.persistence.room.TypeConverter
 import android.net.Uri

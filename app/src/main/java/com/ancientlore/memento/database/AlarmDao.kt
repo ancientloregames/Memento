@@ -1,6 +1,7 @@
-package com.ancientlore.memento
+package com.ancientlore.memento.database
 
 import android.arch.persistence.room.*
+import com.ancientlore.memento.Alarm
 
 @Dao
 interface AlarmDao {

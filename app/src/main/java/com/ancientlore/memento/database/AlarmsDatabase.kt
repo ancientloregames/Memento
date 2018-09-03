@@ -1,10 +1,12 @@
-package com.ancientlore.memento
+package com.ancientlore.memento.database
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
 import android.content.Context
+import com.ancientlore.memento.Alarm
+import com.ancientlore.memento.SingletonHolder
 
 @Database(entities = [(Alarm::class)], version = 1)
 @TypeConverters(DataConverters::class)

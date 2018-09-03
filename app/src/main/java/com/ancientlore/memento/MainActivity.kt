@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.annotation.WorkerThread
 import android.support.v7.widget.LinearLayoutManager
 import com.ancientlore.memento.AlarmActivity.Companion.EXTRA_ALARM
+import com.ancientlore.memento.database.AlarmsDatabase
 import com.ancientlore.memento.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.ExecutorService
