@@ -11,8 +11,8 @@ interface AlarmDao {
 	@Query("SELECT * FROM alarms WHERE id IN (:ids)")
 	fun loadAllByIds(ids: LongArray): List<Alarm>
 
-	@Query("SELECT * FROM alarms WHERE id LIKE :first")
-	fun findById(first: Long): Alarm?
+	@Query("SELECT * FROM alarms WHERE id LIKE :id")
+	fun findById(id: Long): Alarm?
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	fun insert(word: Alarm): Long
