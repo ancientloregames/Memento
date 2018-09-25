@@ -1,10 +1,10 @@
 package com.ancientlore.memento
 
-import android.arch.lifecycle.ViewModel
+import android.app.Activity
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-class MainActivityViewModel: ViewModel(), AlarmsListAdapter.Listener {
+class MainActivityViewModel(activity: Activity): BasicViewModel(activity), AlarmsListAdapter.Listener {
 
 	private val addAlarmEvent = PublishSubject.create<Any>()
 
@@ -23,4 +23,8 @@ class MainActivityViewModel: ViewModel(), AlarmsListAdapter.Listener {
 	fun alarmSelectedEvent() = alarmSelectedEvent as Observable<Alarm>
 
 	fun alarmSwitchedEvent() = alarmSwitchedEvent as Observable<Pair<Alarm, Boolean>>
+
+	fun addNewAlarm() {
+		startActivityForResult(AlarmActivity::class.java, MainActivity.INTENT_ADD_ALARM)
+	}
 }
