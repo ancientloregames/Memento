@@ -27,7 +27,7 @@ class AlarmActivity: BasicActivity<ActivityAlarmBinding, AlarmActivityViewModel>
 
 	override fun getBindingVariable() = BR.viewModel
 
-	override fun createViewModel() = AlarmActivityViewModel()
+	override fun createViewModel() = AlarmActivityViewModel(this)
 
 	override fun getTitleId() = R.string.new_alarm
 

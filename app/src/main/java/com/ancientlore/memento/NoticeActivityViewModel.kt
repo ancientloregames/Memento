@@ -1,11 +1,12 @@
 package com.ancientlore.memento
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableField
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-class NoticeActivityViewModel: ViewModel() {
+class NoticeActivityViewModel(activity: Activity): BasicViewModel(activity) {
 
 	val titleField = ObservableField<String>("")
 	val messageField = ObservableField<String>("")

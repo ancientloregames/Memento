@@ -68,7 +68,7 @@ class MainActivity : BasicActivity<ActivityMainBinding, MainActivityViewModel>()
 
 	override fun getBindingVariable() = BR.viewModel
 
-	override fun createViewModel() = MainActivityViewModel()
+	override fun createViewModel() = MainActivityViewModel(this)
 
 	override fun getTitleId() = R.string.app_name
 

@@ -24,7 +24,7 @@ class NoticeActivity: BasicActivity<ActivityNoticeBinding, NoticeActivityViewMod
 
 	override fun getBindingVariable() = BR.viewModel
 
-	override fun createViewModel() = NoticeActivityViewModel()
+	override fun createViewModel() = NoticeActivityViewModel(this)
 
 	override fun getTitleId() = R.string.app_name
 

@@ -1,6 +1,6 @@
 package com.ancientlore.memento
 
-import android.arch.lifecycle.ViewModel
+import android.app.Activity
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
@@ -10,7 +10,7 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
 
-class AlarmActivityViewModel: ViewModel() {
+class AlarmActivityViewModel(activity: Activity): BasicViewModel(activity) {
 
 	var id: Long = 0
 
