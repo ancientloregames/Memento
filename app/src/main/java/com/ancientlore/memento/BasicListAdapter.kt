@@ -11,7 +11,8 @@ import android.view.ViewGroup
 abstract class BasicListAdapter<
 		P,
 		T: BasicListAdapter.ViewHolder<P>,
-		F: BasicListAdapter.Listener<P>>(context: Context, internal val items: MutableList<P>): RecyclerView.Adapter<T>() {
+		F: BasicListAdapter.Listener<P>>(context: Context, internal val items: MutableList<P>):
+		RecyclerView.Adapter<T>(), MutableAdapter<P> {
 
 	interface Listener<P> {
 		fun onItemSelected(item: P)
@@ -23,6 +24,10 @@ abstract class BasicListAdapter<
 	abstract fun getViewHolderLayoutRes(viewType: Int): Int
 
 	abstract fun getViewHolder(layout: View): T
+
+	abstract fun compareItems(first: P, second: P) : Boolean
+
+	abstract fun isUnique(item: P) : Boolean
 
 	private fun getViewHolderLayout(parent: ViewGroup, layoutRes: Int) = layoutInflater.inflate(layoutRes, parent,false)
 
@@ -44,19 +49,36 @@ abstract class BasicListAdapter<
 	}
 
 	@UiThread
-	fun addItem(newItem: P) {
-		items.add(newItem)
-		notifyItemInserted(itemCount - 1)
+	override fun setItems(newItems: List<P>) {
+		items.clear()
+		items.addAll(newItems)
+		notifyDataSetChanged()
 	}
 
 	@UiThread
-	fun updateItem(updatedItem: P) {
-		items.indexOfFirst { compareItems(it, updatedItem) }.takeIf { it != -1 }
-				?.let { index -> updateItemAt(index, updatedItem) }
+	override fun addItem(newItem: P): Boolean {
+		val allowAddition = isUnique(newItem)
+		if (allowAddition) {
+			items.add(newItem)
+			notifyItemInserted(itemCount - 1)
+		}
+
+		return allowAddition
 	}
 
 	@UiThread
-	fun deleteItem(itemToDelete: P): Boolean {
+	override fun updateItem(updatedItem: P): Boolean {
+		return items.indexOfFirst { compareItems(it, updatedItem) }
+				.takeIf { it != -1 }
+				?.let {
+					updateItemAt(it, updatedItem)
+					true
+				}
+				?: false
+	}
+
+	@UiThread
+	override fun deleteItem(itemToDelete: P): Boolean {
 		val index = items.indexOf(itemToDelete)
 		if (index != -1) {
 			items.removeAt(index)
@@ -70,8 +92,6 @@ abstract class BasicListAdapter<
 		items[index] = updatedItem
 		notifyItemChanged(index)
 	}
-
-	abstract fun compareItems(first: P, second: P) : Boolean
 
 	abstract class ViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemView), Bindable<T>, Clickable {
 
