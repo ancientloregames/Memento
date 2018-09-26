@@ -9,7 +9,7 @@ import android.support.annotation.StringRes
 import android.support.v7.app.AppCompatActivity
 import io.reactivex.subjects.PublishSubject
 
-abstract class BaseActivity<T : ViewDataBinding, V : ViewModel> : AppCompatActivity() {
+abstract class BasicActivity<T : ViewDataBinding, V : ViewModel> : AppCompatActivity() {
 	private lateinit var viewDataBinding : T
 	protected lateinit var viewModel : V
 

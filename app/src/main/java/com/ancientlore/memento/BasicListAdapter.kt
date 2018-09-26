@@ -8,10 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-abstract class BaseListAdapter<
+abstract class BasicListAdapter<
 		P,
-		T: BaseListAdapter.ViewHolder<P>,
-		F: BaseListAdapter.Listener<P>>(context: Context, internal val items: MutableList<P>): RecyclerView.Adapter<T>() {
+		T: BasicListAdapter.ViewHolder<P>,
+		F: BasicListAdapter.Listener<P>>(context: Context, internal val items: MutableList<P>): RecyclerView.Adapter<T>() {
 
 	interface Listener<P> {
 		fun onItemSelected(item: P)

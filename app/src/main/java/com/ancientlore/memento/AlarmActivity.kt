@@ -11,7 +11,7 @@ import android.view.MenuItem
 import android.widget.NumberPicker
 import com.ancientlore.memento.databinding.ActivityAlarmBinding
 
-class AlarmActivity: BaseActivity<ActivityAlarmBinding, AlarmActivityViewModel>() {
+class AlarmActivity: BasicActivity<ActivityAlarmBinding, AlarmActivityViewModel>() {
 
 	companion object {
 		const val EXTRA_ALARM = "alarm"

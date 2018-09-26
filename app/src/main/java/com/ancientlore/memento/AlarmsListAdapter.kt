@@ -6,9 +6,9 @@ import android.widget.CompoundButton
 import android.widget.TextView
 
 class AlarmsListAdapter(context: Context, items: MutableList<Alarm>):
-		BaseListAdapter<Alarm, AlarmsListAdapter.ViewHolder, AlarmsListAdapter.Listener>(context, items) {
+		BasicListAdapter<Alarm, AlarmsListAdapter.ViewHolder, AlarmsListAdapter.Listener>(context, items) {
 
-	interface Listener: BaseListAdapter.Listener<Alarm> {
+	interface Listener: BasicListAdapter.Listener<Alarm> {
 		fun onItemSwitched(item: Alarm, state: Boolean)
 	}
 
@@ -32,7 +32,7 @@ class AlarmsListAdapter(context: Context, items: MutableList<Alarm>):
 
 	override fun compareItems(first: Alarm, second: Alarm) = first.id == second.id
 
-	class ViewHolder(itemView: View): BaseListAdapter.ViewHolder<Alarm>(itemView) {
+	class ViewHolder(itemView: View): BasicListAdapter.ViewHolder<Alarm>(itemView) {
 
 		interface Listener {
 			fun onSwitchClicked(checked: Boolean)

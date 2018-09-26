@@ -11,7 +11,7 @@ import android.os.Vibrator
 import com.ancientlore.memento.databinding.ActivityNoticeBinding
 import java.util.*
 
-class NoticeActivity: BaseActivity<ActivityNoticeBinding, NoticeActivityViewModel>() {
+class NoticeActivity: BasicActivity<ActivityNoticeBinding, NoticeActivityViewModel>() {
 
 	companion object {
 		const val alarmDuration = 10000L
